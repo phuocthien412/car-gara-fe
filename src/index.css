@@ -1,68 +1,133 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Theme variables */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  --font-sans: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Noto Sans", "Ubuntu", "Cantarell", "Helvetica Neue", Arial,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --brand: #e11d2e;
+  --brand-600: #c11224;
+  --brand-700: #99101d;
+  --dark: #0b0b0c;
+  --muted: #6b7280;
+  --bg: #ffffff;
+  --card-bg: rgba(255,255,255,0.85);
+  --glass: rgba(255,255,255,0.6);
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+/* Base layout */
+html, body, #root {
+  height: 100%;
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  @apply antialiased text-neutral-900;
+  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.45;
+  color: var(--dark);
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* Container with padding */
+.container-pad {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
+/* Buttons */
+.btn-primary {
+  @apply inline-flex items-center gap-2 rounded-md px-5 py-3 font-semibold text-white shadow transition-transform duration-200;
+  background-color: var(--brand);
+  box-shadow: 0 6px 18px rgba(225,29,46,0.12);
 }
-button:hover {
-  border-color: #646cff;
+.btn-primary:hover { background-color: var(--brand-600); transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+
+/* Ghost variant */
+.btn-ghost {
+  @apply inline-flex items-center gap-2 rounded-md border px-5 py-3 font-semibold transition-colors duration-200;
+  border-color: rgba(15,23,42,0.06);
+  background-color: transparent;
 }
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.btn-ghost:hover { @apply bg-neutral-100; }
+
+/* Card */
+.card {
+  @apply rounded-xl border bg-white shadow-sm transition-all duration-300 overflow-hidden;
+  border-color: rgba(15,23,42,0.06);
+  background-color: var(--card-bg);
+}
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 40px rgba(2,6,23,0.08);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Hero overlay */
+.hero-overlay {
+  @apply absolute inset-0;
+  background: linear-gradient(90deg, rgba(0,0,0,0.55), rgba(0,0,0,0.3));
+}
+
+/* Text utilities */
+.text-muted { color: var(--muted); }
+.text-brand { color: var(--brand); }
+
+/* Footer tweaks */
+.site-footer {
+  background: linear-gradient(180deg, rgba(250,250,250,1), rgba(245,246,250,1));
+}
+.site-footer .footer-title {
+  @apply text-lg font-semibold;
+  color: #111827;
+}
+
+/* Map embed helper (full width responsive) */
+.map-embed {
+  width: 100%;
+  height: 14rem;
+  border: 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+@media (min-width: 768px) {
+  .map-embed { height: 20rem; }
+}
+@media (min-width: 1024px) {
+  .map-embed { height: 24rem; }
+}
+
+/* Small UI helpers */
+.kicker {
+  @apply text-sm font-medium text-neutral-600;
+}
+.link-primary {
+  color: var(--brand);
+  transition: color .15s ease;
+}
+.link-primary:hover { color: var(--brand-600); text-decoration: underline; }
+
+/* Accessible focus outlines */
+:focus {
+  outline: 2px solid rgba(225,29,46,0.12);
+  outline-offset: 2px;
+}
+
+/* Minor responsive spacing improvements */
+@media (min-width: 768px) {
+  .container-pad { padding-left: 1.5rem; padding-right: 1.5rem; }
+}
+
+/* Utility: subtle divider */
+.hr-soft {
+  border-top: 1px solid rgba(15,23,42,0.06);
+}
+
+/* Footer copyright small */
+.footer-copyright {
+  @apply border-t py-4 text-center text-xs text-neutral-500;
+  border-color: rgba(15,23,42,0.06);
 }
