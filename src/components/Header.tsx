@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
+import { Car } from 'lucide-react'
 
 export default function Header() {
   const nav = [
@@ -20,10 +21,7 @@ export default function Header() {
     <header className="sticky top-0 z-50 border-b border-neutral-200/70 bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container-pad flex h-16 items-center justify-between">
         <NavLink to="/" className="flex items-center gap-3 text-xl font-bold text-brand">
-          <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-            <rect width="24" height="24" rx="6" fill="currentColor" className="text-brand/10" />
-            <path d="M4 13.5C6 10 9 8 12 8s6 2 8 5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-brand"/>
-          </svg>
+          <Car className="h-6 w-6" aria-hidden />
           Gara Auto Pro
         </NavLink>
 

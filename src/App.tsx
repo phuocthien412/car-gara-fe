@@ -115,7 +115,7 @@ function App() {
 
           <button
             onClick={() => setChatOpen((s) => !s)}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-brand text-white shadow-lg transition-transform hover:scale-105"
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-brand text-red shadow-lg transition-transform hover:scale-105"
             aria-label="Chat"
             aria-expanded={chatOpen}
           >
