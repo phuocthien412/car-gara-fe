@@ -60,6 +60,13 @@ const adminApi = {
   },
   updateProfile(body: UpdateAdminProfileReqBody) {
     return httpAdminPortal.post<SuccessResponseApi<Admin>>(URL_UPDATE_PROFILE, body)
+  },
+  uploadImages(form: FormData) {
+    return httpAdminPortal.post<SuccessResponseApi<{ urls?: string[]; url?: string }>>(
+      URL_UPLOAD_IMAGES,
+      form,
+      { headers: { 'Content-Type': undefined } }
+    )
   }
 } as const
 

@@ -5,6 +5,8 @@ export interface dichvu {
     description?: string
     price?: number
     image?: string
+    quantity?: number
+    in_stock?: boolean
     created_at: string
     updated_at: string
 }
@@ -14,6 +16,8 @@ export interface CreateDichVuReq {
   description?: string;
   price?: number;
   image?: string; 
+  quantity?: number;
+  in_stock?: boolean;
 }
 
 export interface UpdateDichVuReq {
@@ -22,6 +26,8 @@ export interface UpdateDichVuReq {
   description?: string;
   price?: number;
   image?: string;
+  quantity?: number;
+  in_stock?: boolean;
 }
 
 export interface ListDichVuResponsePagination {

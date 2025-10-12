@@ -13,6 +13,7 @@ export const URL_CREATE_DICHVU = URL + '/create'
 export const URL_LIST_DICHVU = URL + '/list_rows'
 export const URL_DETAIL_DICHVU = URL + '/detail'
 export const URL_UPDATE_DICHVU = URL + '/update'
+export const URL_UPLOAD_IMAGES = URL + '/upload-images'
 
 const dichvuApi = {
     createDichVu(body: CreateDichVuReq) {
@@ -24,9 +25,17 @@ const dichvuApi = {
     dichvuDetail(id: string) {
         return httpAdminPortal.get<SuccessResponseApi<dichvu>>(`${URL_DETAIL_DICHVU}/${id}`)
     },
-    updateDichVu(body: UpdateDichVuReq) {
-        return httpAdminPortal.put<SuccessResponseApi<dichvu>>(URL_UPDATE_DICHVU, body)
+  updateDichVu(body: UpdateDichVuReq) {
+        const { _id, ...rest } = body
+        return httpAdminPortal.put<SuccessResponseApi<dichvu>>(URL_UPDATE_DICHVU, { id: _id, ...rest })
     },
+     uploadImages(form: FormData) {
+        return httpAdminPortal.post<SuccessResponseApi<{ urls?: string[]; url?: string }>>(
+          URL_UPLOAD_IMAGES,
+          form,
+          { headers: { 'Content-Type': undefined } }
+        )
+      }
 }
 
 export default dichvuApi

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 
 export default function LienHe() {
-  const address = 'Số 123, Đường ABC, Quận 1, TP. HCM'
+  const address = '189 Đường Tân Liêm, Phong Phú, Bình Chánh, Hồ Chí Minh'
   const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`
   const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
 

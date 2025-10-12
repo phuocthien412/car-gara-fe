@@ -4,6 +4,8 @@ export interface sanpham {
     description?: string
     price?: number
     image?: string
+    quantity?: number
+    in_stock?: boolean
     created_at: string
     updated_at: string
 }
@@ -15,6 +17,8 @@ export interface CreateSanPhamReq {
   description?: string;
   price?: number;
   image?: string;
+  quantity?: number;
+  in_stock?: boolean;
 }
 
 export interface UpdateSanPhamReq {
@@ -23,6 +27,8 @@ export interface UpdateSanPhamReq {
   description?: string;
   price?: number;
   image?: string;
+  quantity?: number;
+  in_stock?: boolean;
 }
 
 export interface ListSanPhamResponsePagination {

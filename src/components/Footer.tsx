@@ -1,7 +1,7 @@
 import { Facebook, Instagram, Twitter, Clock } from 'lucide-react'
 
 export default function Footer() {
-  const address = 'Số 123, Đường Gara, Quận 1, TP. HCM'
+  const address = '189 Đường Tân Liêm, Phong Phú, Bình Chánh, Hồ Chí Minh'
   const email = 'support@yourcompany.com'
   const hotline = '0901 234 567'
   const workingHours = [
@@ -67,7 +67,7 @@ export default function Footer() {
           <div className="mt-3 flex gap-4 text-neutral-600">
             <a
               aria-label="Facebook"
-              href="https://facebook.com"
+              href="https://www.facebook.com/truong.bui.minh.thuan"
               target="_blank"
               rel="noopener noreferrer"
               className="transition-colors hover:text-amber-600"
