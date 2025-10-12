@@ -32,9 +32,10 @@ export default function CreateDichVu() {
   }
 
   return (
-    <div className="min-h-[80vh] rounded-xl bg-neutral-950 text-neutral-100 p-6 shadow-inner border border-neutral-800">
-      <div className="mb-4 text-2xl font-semibold">Thêm dịch vụ</div>
-      <form onSubmit={onSubmit} className="space-y-4 rounded-lg border border-neutral-800 bg-neutral-900/60 p-4">
+    <div className="min-h-[80vh] rounded-xl bg-neutral-950 text-neutral-100 p-4 sm:p-6 shadow-inner border border-neutral-800">
+      <div className="mb-4 text-xl sm:text-2xl font-semibold">Thêm dịch vụ</div>
+
+      <form onSubmit={onSubmit} className="space-y-4 rounded-lg border border-neutral-800 bg-neutral-900/60 p-4 sm:p-6">
         <div>
           <label className="mb-1 block text-sm text-neutral-300">Tiêu đề</label>
           <input
@@ -45,15 +46,17 @@ export default function CreateDichVu() {
             placeholder="Nhập tiêu đề dịch vụ"
           />
         </div>
+
         <div>
           <label className="mb-1 block text-sm text-neutral-300">Mô tả</label>
           <textarea
-            className="w-full rounded border border-neutral-800 bg-neutral-800/60 px-3 py-2 text-neutral-100 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="w-full rounded border border-neutral-800 bg-neutral-800/60 px-3 py-2 text-neutral-100 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500 min-h-[96px]"
             value={form.description || ''}
             onChange={(e) => setForm((s) => ({ ...s, description: e.target.value }))}
             placeholder="Mô tả ngắn về dịch vụ"
           />
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
             <label className="mb-1 block text-sm text-neutral-300">Giá</label>
@@ -65,6 +68,7 @@ export default function CreateDichVu() {
               placeholder="VD: 500000"
             />
           </div>
+
           <div>
             <label className="mb-1 block text-sm text-neutral-300">Số lượng (quantity)</label>
             <input
@@ -76,9 +80,18 @@ export default function CreateDichVu() {
             />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <ImageUrlOrFile value={form.image || ''} onChange={(url) => setForm((s) => ({ ...s, image: url }))} />
-          <div className="flex items-center gap-2 pt-6">
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
+          {/* Image component full width on mobile */}
+          <div className="w-full">
+            <ImageUrlOrFile
+              value={form.image || ''}
+              onChange={(url) => setForm((s) => ({ ...s, image: url }))}
+              className="w-full"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 pt-2 md:pt-6">
             <input
               id="inStock"
               type="checkbox"
@@ -89,14 +102,19 @@ export default function CreateDichVu() {
             <label htmlFor="inStock" className="text-sm text-neutral-300">Còn hàng (in_stock)</label>
           </div>
         </div>
-        <div className="flex gap-2">
-          <button type="submit" className="rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-white shadow hover:shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-all">
+
+        <div className="flex flex-col md:flex-row gap-3 md:gap-2">
+          <button
+            type="submit"
+            className="w-full md:w-auto rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-white shadow hover:shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-all"
+          >
             Thêm mới
           </button>
+
           <button
             type="button"
             onClick={() => navigate('/admin/dich-vu')}
-            className="rounded-lg bg-neutral-800 px-4 py-2 text-neutral-200 border border-neutral-700 hover:bg-neutral-800/70"
+            className="w-full md:w-auto rounded-lg bg-neutral-800 px-4 py-2 text-neutral-200 border border-neutral-700 hover:bg-neutral-800/70"
           >
             Hủy
           </button>

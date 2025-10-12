@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Package, PlusCircle, Edit3, Tag, X } from 'lucide-react'
+import { Package, PlusCircle, Edit3, Tag, X, Trash2 } from 'lucide-react'
 import sanphamApi from '@/apis/sanpham'
 import type { sanpham } from '@/types/sanpham'
 
@@ -15,6 +15,12 @@ export default function ManageSanPham() {
   const items: sanpham[] = (data?.data?.data?.data as sanpham[]) ?? []
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const qc = useQueryClient()
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => sanphamApi.deleteSanPham(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'sanpham', 'list'] })
+  })
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -25,138 +31,103 @@ export default function ManageSanPham() {
   }, [previewUrl])
 
   return (
-    <div className="min-h-[80vh] rounded-xl bg-neutral-950 text-neutral-100 p-6 shadow-inner border border-neutral-800">
+    <div className="min-h-[80vh] rounded-xl bg-neutral-950 text-neutral-100 p-4 sm:p-6 shadow-inner border border-neutral-800">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2 text-2xl font-semibold">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2 text-lg sm:text-2xl font-semibold">
           <Package className="text-red-500" />
           <span>Danh sách Sản phẩm</span>
         </div>
         <Link
           to="/admin/san-pham/create"
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-sm font-medium text-white shadow hover:shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-all duration-200"
+          className="hidden sm:flex items-center gap-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-sm font-medium text-white shadow transition"
         >
           <PlusCircle size={18} />
           Thêm mới
         </Link>
+        <Link to="/admin/san-pham/create" className="sm:hidden inline-flex items-center justify-center h-10 w-10 rounded-full bg-red-600 text-white">
+          <PlusCircle size={18} />
+        </Link>
       </div>
 
-      {/* Table container */}
-      <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/60 backdrop-blur-md shadow">
-        {/* Table header */}
-        {items.length > 0 && (
-          <div className="grid grid-cols-12 gap-3 bg-neutral-800/70 p-3 text-xs md:text-sm font-semibold text-neutral-300 border-b border-neutral-700">
-            <div className="col-span-5">Tiêu đề / Mô tả</div>
-            <div className="col-span-2">Giá</div>
-            <div className="col-span-2">Số lượng</div>
-            <div className="col-span-2">Trạng thái</div>
-            <div className="col-span-1 text-right">Thao tác</div>
-          </div>
-        )}
+      <div className="space-y-3">
+        {isLoading && <div className="p-4 text-sm text-neutral-500 animate-pulse">Đang tải danh sách sản phẩm...</div>}
+        {!isLoading && items.length === 0 && <div className="p-4 text-sm text-neutral-500 text-center">Không có sản phẩm nào.</div>}
 
-        {/* Loading / Empty state */}
-        {isLoading && (
-          <div className="p-6 text-sm text-neutral-500 animate-pulse">
-            Đang tải danh sách sản phẩm...
-          </div>
-        )}
-        {!isLoading && items.length === 0 && (
-          <div className="p-6 text-sm text-neutral-500 text-center">
-            Không có sản phẩm nào.
-          </div>
-        )}
-
-        {/* Table rows */}
         {!isLoading &&
-          items.map((item, index) => {
-            return (
+          items.map((item, index) => (
             <motion.div
               key={item._id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className="grid grid-cols-12 items-center gap-3 p-4 hover:bg-neutral-800/60 transition-all duration-200 border-b border-neutral-800 last:border-b-0"
+              transition={{ delay: index * 0.03 }}
+              className="group flex flex-col sm:grid sm:grid-cols-12 gap-3 p-3 sm:p-4 bg-neutral-900/30 rounded-lg border border-neutral-800 hover:shadow hover:bg-neutral-900/50 transition"
             >
-              <div className="col-span-5 flex items-start gap-3">
+              <div className="flex items-start gap-3 col-span-5 sm:col-span-5">
                 {item.image ? (
                   <img
                     src={item.image}
                     alt={item.title}
                     onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-                    className="h-12 w-12 rounded-md object-cover border border-neutral-700 cursor-pointer"
+                    className="h-14 w-14 rounded-md object-cover border border-neutral-700 cursor-pointer"
                     onClick={() => setPreviewUrl(item.image || null)}
                   />
                 ) : (
-                  <div className="h-12 w-12 rounded-md bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500">
-                    <Tag size={16} />
+                  <div className="h-14 w-14 rounded-md bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500">
+                    <Tag size={18} />
                   </div>
                 )}
-                <div>
-                  <div className="font-medium text-white">{item.title}</div>
-                  <div className="text-xs text-neutral-400 line-clamp-2">
-                    {item.description || 'Không có mô tả'}
+                <div className="flex-1">
+                  <div className="font-medium text-white text-sm sm:text-base">{item.title}</div>
+                  <div className="text-xs text-neutral-400 line-clamp-2">{item.description || 'Không có mô tả'}</div>
+
+                  <div className="mt-2 flex items-center gap-2 text-xs sm:hidden">
+                    <div className="inline-flex items-center rounded-full bg-neutral-800/60 px-2 py-0.5 text-neutral-300">
+                      Giá: <span className="ml-1 font-medium text-white">{item.price ? `${item.price.toLocaleString('vi-VN')} đ` : '-'}</span>
+                    </div>
+                    <div className="inline-flex items-center rounded-full bg-neutral-800/60 px-2 py-0.5 text-neutral-300">
+                      SL: <span className="ml-1 font-medium text-white">{item.quantity ?? '-'}</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="col-span-2 text-xs md:text-sm text-neutral-300">
-                {item.price ? `${item.price.toLocaleString('vi-VN')} đ` : '-'}
-              </div>
+              <div className="hidden sm:flex col-span-2 items-center text-xs md:text-sm text-neutral-300">{item.price ? `${item.price.toLocaleString('vi-VN')} đ` : '-'}</div>
 
-              <div className="col-span-2 text-xs md:text-sm text-neutral-300">
-                {item.quantity ?? '-'}
-              </div>
+              <div className="hidden sm:flex col-span-2 items-center text-xs md:text-sm text-neutral-300">{item.quantity ?? '-'}</div>
 
-              <div className="col-span-2">
+              <div className="hidden sm:flex col-span-2 items-center">
                 {(item.quantity ?? 0) > 0 ? (
-                  <span className="inline-flex items-center rounded-full bg-green-500/20 px-3 py-0.5 text-[11px] md:text-xs font-medium text-green-400">
-                    Còn hàng
-                  </span>
+                  <span className="inline-flex items-center rounded-full bg-green-500/20 px-3 py-0.5 text-[11px] md:text-xs font-medium text-green-400">Còn hàng</span>
                 ) : (
-                  <span className="inline-flex items-center rounded-full bg-red-500/20 px-3 py-0.5 text-[11px] md:text-xs font-medium text-red-400">
-                    Hết hàng
-                  </span>
+                  <span className="inline-flex items-center rounded-full bg-red-500/20 px-3 py-0.5 text-[11px] md:text-xs font-medium text-red-400">Hết hàng</span>
                 )}
               </div>
 
-              <div className="col-span-1 text-right">
-                <Link
-                  to={`/admin/san-pham/update/${item._id}`}
-                  className="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-300 transition-colors"
-                >
-                  <Edit3 size={14} /> Sửa
+              <div className="col-span-1 mt-3 sm:mt-0 flex items-center justify-end gap-2">
+                <Link to={`/admin/san-pham/update/${item._id}`} className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-neutral-800 hover:bg-neutral-700 text-red-400 transition-colors">
+                  <Edit3 size={14} />
                 </Link>
+                <button
+                  type="button"
+                  onClick={() => { if (confirm('Bạn có chắc muốn xóa sản phẩm này?')) deleteMutation.mutate(item._id) }}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-neutral-800 hover:bg-red-700 text-red-400 hover:text-white transition-colors"
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
             </motion.div>
-          )})}
+          ))}
       </div>
 
-      {/* Image preview modal */}
+      {/* preview modal */}
       {previewUrl && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-          onClick={() => setPreviewUrl(null)}
-          role="dialog"
-          aria-modal="true"
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setPreviewUrl(null)} role="dialog" aria-modal="true">
           <div className="relative max-h-[90vh] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setPreviewUrl(null)}
-              className="absolute right-2 top-2 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
-              aria-label="Đóng xem ảnh"
-            >
+            <button onClick={() => setPreviewUrl(null)} className="absolute right-2 top-2 z-10 inline-flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60" aria-label="Đóng xem ảnh">
               <X size={16} />
             </button>
-            <img
-              src={previewUrl}
-              alt="preview"
-              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-              className="max-h-[80vh] max-w-full rounded-md object-contain shadow-lg bg-neutral-900"
-            />
-            {/* fallback */}
-            <div className="mt-2 text-center text-sm text-neutral-300">
-              Nếu ảnh không hiển thị, kiểm tra URL hoặc thử mở trong tab mới.
-            </div>
+            <img src={previewUrl} alt="preview" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }} className="max-h-[80vh] max-w-full rounded-md object-contain shadow-lg bg-neutral-900" />
           </div>
         </div>
       )}

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Wrench, PlusCircle, Edit3, Tag, X } from 'lucide-react'
+import { Wrench, PlusCircle, Edit3, Tag, X, Trash2 } from 'lucide-react'
 import dichvuApi from '@/apis/dichvu'
 import type { dichvu } from '@/types/dichvu'
 
@@ -15,99 +15,115 @@ export default function ManageDichVu() {
   const items: dichvu[] = (data?.data?.data?.data as dichvu[]) ?? []
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<dichvu | null>(null)
+  const qc = useQueryClient()
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => dichvuApi.deleteDichVu(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'dichvu', 'list'] })
+      setDeleteTarget(null)
+    }
+  })
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setPreviewUrl(null)
+      if (e.key === 'Escape') {
+        setPreviewUrl(null)
+        setDeleteTarget(null)
+      }
     }
-    if (previewUrl) document.addEventListener('keydown', onKey)
+    if (previewUrl || deleteTarget) document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
-  }, [previewUrl])
+  }, [previewUrl, deleteTarget])
 
   return (
-    <div className="min-h-[80vh] rounded-xl bg-neutral-950 text-neutral-100 p-6 shadow-inner border border-neutral-800">
+    <div className="min-h-[80vh] rounded-xl bg-neutral-950 text-neutral-100 p-4 sm:p-6 shadow-inner border border-neutral-800">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2 text-2xl font-semibold">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2 text-lg sm:text-2xl font-semibold">
           <Wrench className="text-red-500" />
           <span>Danh sách Dịch vụ</span>
         </div>
         <Link
           to="/admin/dich-vu/create"
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-sm font-medium text-white shadow hover:shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-all duration-200"
+          className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-sm font-medium text-white shadow hover:shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-all duration-200"
         >
           <PlusCircle size={18} />
           Thêm mới
         </Link>
+
+        {/* mobile add button */}
+        <Link
+          to="/admin/dich-vu/create"
+          className="inline-flex sm:hidden items-center justify-center h-10 w-10 rounded-full bg-red-600 text-white shadow"
+          title="Thêm mới"
+        >
+          <PlusCircle size={18} />
+        </Link>
       </div>
 
-      {/* Table container */}
-      <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/60 backdrop-blur-md shadow">
-        {/* Table header */}
-        {items.length > 0 && (
-          <div className="grid grid-cols-12 gap-3 bg-neutral-800/70 p-3 text-xs md:text-sm font-semibold text-neutral-300 border-b border-neutral-700">
-            <div className="col-span-5">Tiêu đề / Mô tả</div>
-            <div className="col-span-2">Giá</div>
-            <div className="col-span-2">Số lượng</div>
-            <div className="col-span-2">Trạng thái</div>
-            <div className="col-span-1 text-right">Thao tác</div>
-          </div>
-        )}
-
-        {/* Loading / Empty state */}
+      {/* Table / Cards container */}
+      <div className="space-y-3">
         {isLoading && (
-          <div className="p-6 text-sm text-neutral-500 animate-pulse">
-            Đang tải danh sách dịch vụ...
-          </div>
-        )}
-        {!isLoading && items.length === 0 && (
-          <div className="p-6 text-sm text-neutral-500 text-center">
-            Không có dịch vụ nào.
-          </div>
+          <div className="p-4 text-sm text-neutral-500 animate-pulse">Đang tải danh sách dịch vụ...</div>
         )}
 
-        {/* Table rows */}
+        {!isLoading && items.length === 0 && (
+          <div className="p-4 text-sm text-neutral-500 text-center">Không có dịch vụ nào.</div>
+        )}
+
         {!isLoading &&
-          items.map((item, index) => {
-            return (
+          items.map((item, index) => (
             <motion.div
               key={item._id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className="grid grid-cols-12 items-center gap-3 p-4 hover:bg-neutral-800/60 transition-all duration-200 border-b border-neutral-800 last:border-b-0"
+              transition={{ delay: index * 0.03 }}
+              className="group flex flex-col sm:grid sm:grid-cols-12 gap-3 p-3 sm:p-4 bg-neutral-900/30 rounded-lg border border-neutral-800 hover:shadow hover:bg-neutral-900/50 transition"
             >
-              <div className="col-span-5 flex items-start gap-3">
+              {/* Left: image */}
+              <div className="flex items-start gap-3 col-span-5 sm:col-span-5">
                 {item.image ? (
                   <img
                     src={item.image}
                     alt={item.title}
                     onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-                    className="h-12 w-12 rounded-md object-cover border border-neutral-700 cursor-pointer"
+                    className="h-14 w-14 rounded-md object-cover border border-neutral-700 cursor-pointer"
                     onClick={() => setPreviewUrl(item.image || null)}
                   />
                 ) : (
-                  <div className="h-12 w-12 rounded-md bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500">
-                    <Tag size={16} />
+                  <div className="h-14 w-14 rounded-md bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500">
+                    <Tag size={18} />
                   </div>
                 )}
-                <div>
-                  <div className="font-medium text-white">{item.title}</div>
-                  <div className="text-xs text-neutral-400 line-clamp-2">
-                    {item.description || 'Không có mô tả'}
+
+                <div className="flex-1">
+                  <div className="font-medium text-white text-sm sm:text-base">{item.title}</div>
+                  <div className="text-xs text-neutral-400 line-clamp-2 sm:line-clamp-3">{item.description || 'Không có mô tả'}</div>
+
+                  {/* mobile meta row */}
+                  <div className="mt-2 flex items-center gap-2 text-xs sm:hidden">
+                    <div className="inline-flex items-center rounded-full bg-neutral-800/60 px-2 py-0.5 text-neutral-300">
+                      Số lượng: <span className="ml-1 font-medium text-white">{item.quantity ?? '-'}</span>
+                    </div>
+                    <div className={`inline-flex items-center rounded-full px-2 py-0.5 ${((item.quantity ?? 0) > 0) ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
+                      {(item.quantity ?? 0) > 0 ? 'Còn hàng' : 'Hết hàng'}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="col-span-2 text-xs md:text-sm text-neutral-300">
+              {/* Middle (desktop): price / quantity / status */}
+              <div className="hidden sm:flex col-span-2 items-center text-xs md:text-sm text-neutral-300">
                 {item.price ? `${item.price.toLocaleString('vi-VN')} đ` : '-'}
               </div>
 
-              <div className="col-span-2 text-xs md:text-sm text-neutral-300">
+              <div className="hidden sm:flex col-span-2 items-center text-xs md:text-sm text-neutral-300">
                 {item.quantity ?? '-'}
               </div>
 
-              <div className="col-span-2">
+              <div className="hidden sm:flex col-span-2 items-center">
                 {(item.quantity ?? 0) > 0 ? (
                   <span className="inline-flex items-center rounded-full bg-green-500/20 px-3 py-0.5 text-[11px] md:text-xs font-medium text-green-400">
                     Còn hàng
@@ -119,16 +135,27 @@ export default function ManageDichVu() {
                 )}
               </div>
 
-              <div className="col-span-1 text-right">
+              {/* Actions */}
+              <div className="col-span-1 mt-3 sm:mt-0 flex items-center justify-end gap-2">
                 <Link
                   to={`/admin/dich-vu/update/${item._id}`}
-                  className="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-300 transition-colors"
+                  title="Sửa"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-neutral-800 hover:bg-neutral-700 text-red-400 transition-colors"
                 >
-                  <Edit3 size={14} /> Sửa
+                  <Edit3 size={14} />
                 </Link>
+
+                <button
+                  type="button"
+                  title="Xóa"
+                  onClick={() => setDeleteTarget(item)}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-neutral-800 hover:bg-red-700 text-red-400 hover:text-white transition-colors"
+                >
+                  <Trash2 size={14} />
+                </button>
               </div>
             </motion.div>
-          )})}
+          ))}
       </div>
 
       {/* Image preview modal */}
@@ -153,8 +180,36 @@ export default function ManageDichVu() {
               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
               className="max-h-[80vh] max-w-full rounded-md object-contain shadow-lg bg-neutral-900"
             />
-            <div className="mt-2 text-center text-sm text-neutral-300">
-              Nếu ảnh không hiển thị, kiểm tra URL hoặc thử mở trong tab mới.
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          onClick={() => setDeleteTarget(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="w-full max-w-md rounded-lg bg-neutral-900 p-5" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold">Xác nhận xóa</h3>
+            <p className="mt-2 text-sm text-neutral-400">Bạn có chắc muốn xóa dịch vụ: <strong className="text-white">{deleteTarget.title}</strong>?</p>
+
+            <div className="mt-5 flex justify-end gap-3">
+              <button
+                onClick={() => setDeleteTarget(null)}
+                className="rounded-md px-4 py-2 bg-neutral-800 text-neutral-200 hover:bg-neutral-700"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={() => deleteMutation.mutate(deleteTarget._id)}
+                disabled={deleteMutation.isPending}
+                className="rounded-md px-4 py-2 bg-red-600 text-white hover:bg-red-500 disabled:opacity-60"
+              >
+                {deleteMutation.isPending ? 'Đang xóa...' : 'Xóa'}
+              </button>
             </div>
           </div>
         </div>

@@ -8,6 +8,7 @@ export const URL_LIST_DUAN = URL + '/list_rows'
 export const URL_DETAIL_DUAN = URL + '/detail'
 export const URL_UPDATE_DUAN = URL + '/update'
 export const URL_UPLOAD_IMAGES = URL + '/upload-images'
+export const URL_DELETE_DUAN = URL + '/delete-one'
 
 const duanApi = {
   createDuAn(body: CreateDuAnReq) {
@@ -24,7 +25,9 @@ const duanApi = {
     return httpAdminPortal.put<SuccessResponseApi<duan>>(URL_UPDATE_DUAN, { id: _id, ...rest })
   },
   deleteDuAn(id: string) {
-    return httpAdminPortal.delete<SuccessResponseApi<null>>(`${URL_DETAIL_DUAN}/${id}`)
+    return httpAdminPortal.delete<SuccessResponseApi<null>>(URL_DELETE_DUAN, {
+          data: { id }
+      })
   },
   uploadImages(form: FormData) {
       return httpAdminPortal.post<SuccessResponseApi<{ urls?: string[]; url?: string }>>(

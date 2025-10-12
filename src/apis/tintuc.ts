@@ -8,6 +8,7 @@ export const URL_LIST_tintuc = URL + '/list_rows'
 export const URL_DETAIL_tintuc = URL + '/detail'
 export const URL_UPDATE_tintuc = URL + '/update'
 export const URL_UPLOAD_IMAGES = URL + '/upload-images'
+export const URL_DELETE_TINTUC = URL + '/delete-one'
 
 const tintucApi = {
   createtintuc(body: CreatetintucReq) {
@@ -22,6 +23,11 @@ const tintucApi = {
   updatetintuc(body: UpdatetintucReq) {
     const { _id, ...rest } = body
     return httpAdminPortal.put<SuccessResponseApi<tintuc>>(URL_UPDATE_tintuc, { id: _id, ...rest })
+  },
+  deletetintuc(id: string) {
+    return httpAdminPortal.delete<SuccessResponseApi<null>>(URL_DELETE_TINTUC, {
+          data: { id }
+      })
   },
   uploadImages(form: FormData) {
       return httpAdminPortal.post<SuccessResponseApi<{ urls?: string[]; url?: string }>>(
