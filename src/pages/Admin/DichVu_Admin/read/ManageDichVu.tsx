@@ -1,18 +1,27 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Wrench, PlusCircle, Edit3, Tag, X, Trash2 } from 'lucide-react'
 import dichvuApi from '@/apis/dichvu'
 import type { dichvu } from '@/types/dichvu'
+import type { SuccessResponseApi } from '@/types/common'
+import type { ListDichVuResponsePagination } from '@/types/dichvu'
+import Pagination from '@/components/Pagination'
 
 export default function ManageDichVu() {
+  const [searchParams] = useSearchParams()
+  const page = Number(searchParams.get('page') || '1')
+  const limit = 12
+
   const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'dichvu', 'list'],
-    queryFn: () => dichvuApi.dichvuList({ page: '1', limit: '50' })
+    queryKey: ['admin', 'dichvu', 'list', page, limit],
+    queryFn: () => dichvuApi.dichvuList({ page: String(page), limit: String(limit) })
   })
 
-  const items: dichvu[] = (data?.data?.data?.data as dichvu[]) ?? []
+  const payload = (data?.data as SuccessResponseApi<ListDichVuResponsePagination> | undefined)?.data
+  const items: dichvu[] = payload?.data ?? []
+  const totalPage = payload?.total_pages ?? 0
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<dichvu | null>(null)
@@ -157,6 +166,12 @@ export default function ManageDichVu() {
             </motion.div>
           ))}
       </div>
+
+      {totalPage > 1 && (
+        <div className="mt-6">
+          <Pagination page={page} totalPage={totalPage} />
+        </div>
+      )}
 
       {/* Image preview modal */}
       {previewUrl && (

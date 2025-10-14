@@ -1,18 +1,27 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Package, PlusCircle, Edit3, Tag, X, Trash2 } from 'lucide-react'
 import sanphamApi from '@/apis/sanpham'
 import type { sanpham } from '@/types/sanpham'
+import type { SuccessResponseApi } from '@/types/common'
+import type { ListSanPhamResponsePagination } from '@/types/sanpham'
+import Pagination from '@/components/Pagination'
 
 export default function ManageSanPham() {
+  const [searchParams] = useSearchParams()
+  const page = Number(searchParams.get('page') || '1')
+  const limit = 12
+
   const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'sanpham', 'list'],
-    queryFn: () => sanphamApi.sanphamList({ page: '1', limit: '50' })
+    queryKey: ['admin', 'sanpham', 'list', page, limit],
+    queryFn: () => sanphamApi.sanphamList({ page: String(page), limit: String(limit) })
   })
 
-  const items: sanpham[] = (data?.data?.data?.data as sanpham[]) ?? []
+  const payload = (data?.data as SuccessResponseApi<ListSanPhamResponsePagination> | undefined)?.data
+  const items: sanpham[] = payload?.data ?? []
+  const totalPage = payload?.total_pages ?? 0
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const qc = useQueryClient()
@@ -119,6 +128,12 @@ export default function ManageSanPham() {
             </motion.div>
           ))}
       </div>
+
+      {totalPage > 1 && (
+        <div className="mt-6">
+          <Pagination page={page} totalPage={totalPage} />
+        </div>
+      )}
 
       {/* preview modal */}
       {previewUrl && (

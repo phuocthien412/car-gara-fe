@@ -1,18 +1,27 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Building2, PlusCircle, Edit3, Tag, X, Trash2 } from 'lucide-react'
 import duanApi from '@/apis/duan'
 import type { duan } from '@/types/duan'
+import type { SuccessResponseApi } from '@/types/common'
+import type { ListDuAnResponsePagination } from '@/types/duan'
+import Pagination from '@/components/Pagination'
 
 export default function ManageDuAn() {
+  const [searchParams] = useSearchParams()
+  const page = Number(searchParams.get('page') || '1')
+  const limit = 12
+
   const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'duan', 'list'],
-    queryFn: () => duanApi.duanList({ page: '1', limit: '50' })
+    queryKey: ['admin', 'duan', 'list', page, limit],
+    queryFn: () => duanApi.duanList({ page: String(page), limit: String(limit) })
   })
 
-  const items: duan[] = (data?.data?.data?.data as duan[]) ?? []
+  const payload = (data?.data as SuccessResponseApi<ListDuAnResponsePagination> | undefined)?.data
+  const items: duan[] = payload?.data ?? []
+  const totalPage = payload?.total_pages ?? 0
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const qc = useQueryClient()
@@ -112,6 +121,12 @@ export default function ManageDuAn() {
             </motion.div>
           ))}
       </div>
+
+      {totalPage > 1 && (
+        <div className="mt-6">
+          <Pagination page={page} totalPage={totalPage} />
+        </div>
+      )}
 
       {/* Image preview modal */}
       {previewUrl && (

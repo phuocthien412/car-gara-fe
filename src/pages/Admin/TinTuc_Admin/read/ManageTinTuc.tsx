@@ -1,18 +1,27 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FileText, PlusCircle, Edit3, Tag, X, Trash2 } from 'lucide-react'
 import tintucApi from '@/apis/tintuc'
 import type { tintuc } from '@/types/tintuc'
+import type { SuccessResponseApi } from '@/types/common'
+import type { ListtintucResponsePagination } from '@/types/tintuc'
+import Pagination from '@/components/Pagination'
 
 export default function ManageTinTuc() {
+  const [searchParams] = useSearchParams()
+  const page = Number(searchParams.get('page') || '1')
+  const limit = 12
+
   const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'tintuc', 'list'],
-    queryFn: () => tintucApi.tintucList({ page: '1', limit: '50' })
+    queryKey: ['admin', 'tintuc', 'list', page, limit],
+    queryFn: () => tintucApi.tintucList({ page: String(page), limit: String(limit) })
   })
 
-  const items: tintuc[] = (data?.data?.data?.data as tintuc[]) ?? []
+  const payload = (data?.data as SuccessResponseApi<ListtintucResponsePagination> | undefined)?.data
+  const items: tintuc[] = payload?.data ?? []
+  const totalPage = payload?.total_pages ?? 0
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<tintuc | null>(null)
@@ -140,6 +149,12 @@ export default function ManageTinTuc() {
             </motion.div>
           ))}
       </div>
+
+      {totalPage > 1 && (
+        <div className="mt-6">
+          <Pagination page={page} totalPage={totalPage} />
+        </div>
+      )}
 
       {/* Image preview modal */}
       {previewUrl && (

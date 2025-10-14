@@ -22,6 +22,8 @@ import type { dichvu } from '@/types/dichvu'
 import type { sanpham } from '@/types/sanpham'
 import type { duan } from '@/types/duan'
 import type { tintuc } from '@/types/tintuc'
+import { useNavigate } from 'react-router-dom'
+import { Home } from 'lucide-react'
 
 ChartJS.register(
   CategoryScale,
@@ -38,6 +40,7 @@ ChartJS.register(
 export default function AdminDashboard() {
   const { theme } = useTheme()
   const isDark = theme === 'dark'
+  const navigate = useNavigate()
 
   const { data: dvData } = useQuery({ queryKey: ['admin', 'dichvu', 'list'], queryFn: () => dichvuApi.dichvuList({ page: '1', limit: '200' }) })
   const { data: spData } = useQuery({ queryKey: ['admin', 'sanpham', 'list'], queryFn: () => sanphamApi.sanphamList({ page: '1', limit: '200' }) })
@@ -146,6 +149,15 @@ export default function AdminDashboard() {
         <h1 className="mb-2 text-2xl font-semibold">Tổng quan</h1>
         <p className={`text-sm ${isDark ? 'text-neutral-400' : 'text-neutral-600'}`}>Thống kê nhanh: Dịch vụ, Sản phẩm, Dự án, Tin tức.</p>
       </div>
+      <button
+          onClick={() => navigate('/')}
+
+           aria-label="Về trang chủ"
+            className={`inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${isDark ? 'border-neutral-700 text-neutral-200 bg-neutral-900 hover:bg-neutral-800' : 'border-neutral-200 text-neutral-700 bg-white hover:bg-neutral-50'}`}
+              >
+                    <Home size={16} />
+                  <span className="hidden sm:inline">Trang chủ</span>
+              </button>
 
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div className={cardStatClass}>

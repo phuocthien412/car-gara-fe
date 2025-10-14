@@ -3,6 +3,7 @@ import dichvuApi from '@/apis/dichvu'
 import sanphamApi from '@/apis/sanpham'
 import duanApi from '@/apis/duan'
 import tintucApi from '@/apis/tintuc'
+import lienheApi from '@/apis/lienhe'
 import type { SuccessResponseApi } from '@/types/common'
 import type { ListDichVuResponsePagination } from '@/types/dichvu'
 import type { ListSanPhamResponsePagination } from '@/types/sanpham'
@@ -12,6 +13,7 @@ import type { dichvu } from '@/types/dichvu'
 import type { sanpham } from '@/types/sanpham'
 import type { duan } from '@/types/duan'
 import type { tintuc } from '@/types/tintuc'
+import type { lienhe, ListLienHeResponsePagination } from '@/types/lienhe'
 
 export type CardItem = { id: string; title: string; description?: string; price?: number; image?: string }
 
@@ -79,6 +81,29 @@ export function useServices() {
         price: s.price,
         image: s.image
       }))
+    }
+  })
+}
+
+export function useContact() {
+  return useQuery<lienhe | undefined>({
+    queryKey: ['contact'],
+    queryFn: async () => {
+      const res = await lienheApi.lienheList({ page: '1', limit: '1' })
+      const envelope = res.data as SuccessResponseApi<ListLienHeResponsePagination>
+      const pag = envelope?.data
+      const items: lienhe[] = pag?.data ?? []
+      if (!items || items.length === 0) return undefined
+
+      // prefer item that has id or _id, else first
+      const pick: lienhe = items.find((d: lienhe) => Boolean(d._id || (d as { _id?: string })._id)) ?? items[0]
+
+      // normalize to always return id (from _id if necessary)
+      const normalized: lienhe = {
+        ...pick,
+        _id: pick._id ?? (pick as { _id?: string })._id ?? undefined
+      }
+      return normalized
     }
   })
 }

@@ -21,6 +21,7 @@ import EditSanPham from './pages/Admin/SanPham_Admin/update/EditSanPham'
 import CreateSanPham from './pages/Admin/SanPham_Admin/create/CreateSanPham'
 import ManageTinTuc from './pages/Admin/TinTuc_Admin/read/ManageTinTuc'
 import ManageDuAn from './pages/Admin/DuAn_Admin/read/ManageDuAn'
+import ManageLienHe from './pages/Admin/LienHe_Admin/ManageLienHe'
 import CreateTinTuc from './pages/Admin/TinTuc_Admin/create/CreateTinTuc'
 import EditTinTuc from './pages/Admin/TinTuc_Admin/update/EditTinTuc'
 import CreateDuAn from './pages/Admin/DuAn_Admin/create/CreateDuAn'
@@ -107,6 +108,7 @@ function RouterWithLayout() {
               <Route path="du-an" element={<ManageDuAn />} />
               <Route path="du-an/create" element={<CreateDuAn />} />
               <Route path="du-an/update/:id" element={<EditDuAn />} />
+              <Route path="lien-he" element={<ManageLienHe />} />
             </Route>
           </Routes>
         </Suspense>

@@ -1,9 +1,22 @@
 import { motion } from 'framer-motion'
+import { MapPin, Phone, Mail, Clock, Map, ExternalLink } from 'lucide-react'
+import { useContact } from '@/hooks/useQueryData'
 
 export default function LienHe() {
-  const address = '189 Đường Tân Liêm, Phong Phú, Bình Chánh, Hồ Chí Minh'
+  const { data: contact } = useContact()
+  const address = contact?.address || 'Địa chỉ đang cập nhật'
+  const hotline = contact?.hotline || contact?.phone || '0123 456 789'
+  const email = contact?.email || ''
+  const workingHours = contact?.working_hours || 'Thứ 2 - Thứ 7: 08:00 - 18:00; Chủ nhật: Nghỉ'
   const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed`
   const mapLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+
+  // Chuẩn hóa số điện thoại -> tel:+84xxxx (bỏ ký tự không phải số và số 0 đầu)
+  const telHref = (() => {
+    const digits = String(hotline).replace(/\D/g, '')
+    const withoutLeading0 = digits.replace(/^0/, '')
+    return `tel:+84${withoutLeading0}`
+  })()
 
   return (
     <section className="container-pad py-10">
@@ -14,58 +27,73 @@ export default function LienHe() {
         animate={{ opacity: 1, y: 0 }}
         className="mx-auto grid gap-6 md:grid-cols-2"
       >
+        {/* Thông tin liên hệ */}
         <div className="rounded-xl border border-neutral-200 bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-xl font-semibold">Thông tin liên hệ trực tiếp</h2>
 
           <ul className="space-y-4 text-sm">
             <li className="flex items-start gap-3">
-              <span className="text-2xl">📍</span>
+              <span className="mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 ring-1 ring-neutral-200 text-brand">
+                <MapPin size={18} />
+              </span>
               <div>
                 <div className="font-medium">Địa chỉ văn phòng</div>
                 <div className="text-neutral-600">{address}</div>
                 <a
-                  className="mt-1 inline-block text-brand hover:underline text-sm"
+                  className="mt-1 inline-flex items-center gap-1 text-brand hover:underline text-sm"
                   href={mapLink}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Mở trên Google Maps
+                  Xem trên Google Maps <ExternalLink size={14} />
                 </a>
               </div>
             </li>
 
             <li className="flex items-start gap-3">
-              <span className="text-2xl">📞</span>
+              <span className="mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 ring-1 ring-neutral-200 text-brand">
+                <Phone size={18} />
+              </span>
               <div>
                 <div className="font-medium">Số điện thoại</div>
-                <a className="text-neutral-600 hover:underline" href="tel:+840123456789">
-                  +84 0123 456 789
+                <a className="text-neutral-600 hover:underline" href={telHref}>
+                  {hotline}
                 </a>
               </div>
             </li>
 
-            <li className="flex items-start gap-3">
-              <span className="text-2xl">📧</span>
-              <div>
-                <div className="font-medium">Email hỗ trợ</div>
-                <a className="text-neutral-600 hover:underline" href="mailto:support@yourcompany.com">
-                  support@yourcompany.com
-                </a>
-              </div>
-            </li>
+            {email && (
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 ring-1 ring-neutral-200 text-brand">
+                  <Mail size={18} />
+                </span>
+                <div>
+                  <div className="font-medium">Email</div>
+                  <a className="text-neutral-600 hover:underline" href={`mailto:${email}`}>
+                    {email}
+                  </a>
+                </div>
+              </li>
+            )}
 
             <li className="flex items-start gap-3">
-              <span className="text-2xl">🕒</span>
+              <span className="mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-full bg-neutral-100 ring-1 ring-neutral-200 text-brand">
+                <Clock size={18} />
+              </span>
               <div>
                 <div className="font-medium">Giờ làm việc</div>
-                <div className="text-neutral-600">Thứ 2 - Thứ 7: 08:00 - 18:00</div>
-                <div className="text-neutral-600">Chủ nhật: Nghỉ / Hỗ trợ online theo lịch hẹn</div>
+                <div className="text-neutral-600 whitespace-pre-line">{workingHours}</div>
               </div>
             </li>
           </ul>
         </div>
 
+        {/* Bản đồ */}
         <div className="rounded-xl border border-neutral-200 bg-white overflow-hidden shadow-sm">
+          <div className="flex items-center gap-2 border-b border-neutral-100 p-3 text-sm font-medium">
+            <Map size={16} className="text-brand" />
+            <span>Bản đồ</span>
+          </div>
           <div className="h-64 sm:h-80 md:h-full">
             <iframe
               title="Bản đồ công ty"
@@ -83,9 +111,9 @@ export default function LienHe() {
               href={mapLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-brand hover:underline"
+              className="inline-flex items-center gap-1 text-brand hover:underline"
             >
-              Mở bản đồ lớn trên Google Maps
+              Mở bản đồ lớn trên Google Maps <ExternalLink size={14} />
             </a>
           </div>
         </div>
