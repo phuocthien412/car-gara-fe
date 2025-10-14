@@ -8,6 +8,7 @@ import type { tintuc } from '@/types/tintuc'
 import type { SuccessResponseApi } from '@/types/common'
 import type { ListtintucResponsePagination } from '@/types/tintuc'
 import Pagination from '@/components/Pagination'
+import PATH from '@/constants/path'
 
 export default function ManageTinTuc() {
   const [searchParams] = useSearchParams()
@@ -56,7 +57,7 @@ export default function ManageTinTuc() {
         </div>
 
         <Link
-          to="/admin/tin-tuc/create"
+          to={PATH.ADMIN_TIN_TUC_CREATE}
           className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-sm font-medium text-white shadow transition"
         >
           <PlusCircle size={18} />
@@ -64,7 +65,7 @@ export default function ManageTinTuc() {
         </Link>
 
         <Link
-          to="/admin/tin-tuc/create"
+          to={PATH.ADMIN_TIN_TUC_CREATE}
           className="sm:hidden inline-flex items-center justify-center h-10 w-10 rounded-full bg-red-600 text-white"
           title="Thêm mới"
         >
@@ -114,7 +115,7 @@ export default function ManageTinTuc() {
                     >
                       Xem ảnh
                     </button>
-                    <Link to={`/admin/tin-tuc/update/${item._id}`} className="inline-flex items-center gap-1 rounded-md bg-neutral-800 px-2 py-1 text-red-400">
+                    <Link to={PATH.ADMIN_TIN_TUC_UPDATE.replace(':id', item._id)} className="inline-flex items-center gap-1 rounded-md bg-neutral-800 px-2 py-1 text-red-400">
                       Sửa
                     </Link>
                     <button
@@ -130,7 +131,7 @@ export default function ManageTinTuc() {
 
               <div className="col-span-2 mt-3 sm:mt-0 text-right flex items-center justify-end gap-2">
                 <Link
-                  to={`/admin/tin-tuc/update/${item._id}`}
+                  to={PATH.ADMIN_TIN_TUC_UPDATE.replace(':id', item._id)}
                   title="Sửa"
                   className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-neutral-800 hover:bg-neutral-700 text-red-400 transition-colors"
                 >

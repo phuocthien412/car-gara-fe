@@ -8,6 +8,7 @@ import type { duan } from '@/types/duan'
 import type { SuccessResponseApi } from '@/types/common'
 import type { ListDuAnResponsePagination } from '@/types/duan'
 import Pagination from '@/components/Pagination'
+import PATH from '@/constants/path'
 
 export default function ManageDuAn() {
   const [searchParams] = useSearchParams()
@@ -48,14 +49,14 @@ export default function ManageDuAn() {
         </div>
 
         <Link
-          to="/admin/du-an/create"
+          to={PATH.ADMIN_DU_AN_CREATE}
           className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-sm font-medium text-white shadow transition"
         >
           <PlusCircle size={18} />
           Thêm mới
         </Link>
 
-        <Link to="/admin/du-an/create" className="sm:hidden inline-flex items-center justify-center h-10 w-10 rounded-full bg-red-600 text-white" title="Thêm mới">
+        <Link to={PATH.ADMIN_DU_AN_CREATE} className="sm:hidden inline-flex items-center justify-center h-10 w-10 rounded-full bg-red-600 text-white" title="Thêm mới">
           <PlusCircle size={18} />
         </Link>
       </div>
@@ -101,7 +102,7 @@ export default function ManageDuAn() {
 
               <div className="col-span-2 mt-3 sm:mt-0 text-right flex items-center justify-end gap-3">
                 <Link
-                  to={`/admin/du-an/update/${item._id}`}
+                  to={PATH.ADMIN_DU_AN_UPDATE.replace('${item._id}', item._id)}
                   className="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-300 transition-colors"
                   title="Sửa"
                 >

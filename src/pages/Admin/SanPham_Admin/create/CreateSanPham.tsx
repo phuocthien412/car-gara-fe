@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import sanphamApi from '@/apis/sanpham'
 import type { CreateSanPhamReq } from '@/types/sanpham'
 import ImageUrlOrFile from '@/components/ImageUrlOrFile'
+import PATH from '@/constants/path'
 
 export default function CreateSanPham() {
   const navigate = useNavigate()
@@ -22,7 +23,7 @@ export default function CreateSanPham() {
     mutationFn: (payload: CreateSanPhamReq) => sanphamApi.createSanPham(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'sanpham', 'list'] })
-      navigate('/admin/san-pham')
+      navigate(PATH.ADMIN_SAN_PHAM)
     }
   })
 
@@ -100,7 +101,7 @@ export default function CreateSanPham() {
           </button>
           <button
             type="button"
-            onClick={() => navigate('/admin/san-pham')}
+            onClick={() => navigate(PATH.ADMIN_SAN_PHAM)}
             className="w-full md:w-auto rounded-lg bg-neutral-800 px-4 py-2 text-neutral-200 border border-neutral-700 hover:bg-neutral-800/70"
           >
             Hủy

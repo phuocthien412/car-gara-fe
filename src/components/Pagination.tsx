@@ -13,10 +13,15 @@ export default function Pagination({ page, totalPage, pageKey = 'page' }: Props)
   const location = useLocation()
   let dotAfter = false
   let dotBefore = false
+  const clamp = (val: number) => {
+    if (totalPage <= 0) return 1
+    return Math.max(1, Math.min(totalPage, val))
+  }
   const getUpdatedSearch = (value: number) => {
     const params = new URLSearchParams(location.search)
-    params.set(pageKey, value.toString())
-    return params.toString()
+    params.set(pageKey, clamp(value).toString())
+    const query = params.toString()
+    return query ? `?${query}` : ''
   }
 
   const renderDotAfter = (index: number) => {
@@ -37,7 +42,7 @@ export default function Pagination({ page, totalPage, pageKey = 'page' }: Props)
       dotBefore = true
       return (
         <li className='w-fit' key={index}>
-          <span className='flex items-center justify-center w-[36px] h-[36px] rounded-sm border cursor-not-allowed'>
+          <span className='flex items-center justify-center w-[36px] h-[36px] rounded-sm border border-gray-300 cursor-not-allowed'>
             ...
           </span>
         </li>
@@ -65,6 +70,7 @@ export default function Pagination({ page, totalPage, pageKey = 'page' }: Props)
           <li className='w-fit' key={index}>
             <Link
               to={{
+                pathname: location.pathname,
                 search: getUpdatedSearch(pageNumber)
               }}
               className={clsx('flex items-center justify-center w-[36px] h-[36px] rounded-sm border border-gray-300', {
@@ -79,11 +85,13 @@ export default function Pagination({ page, totalPage, pageKey = 'page' }: Props)
   }
   return (
     <div className='lg:mt-5 mn:mt-4'>
+      {totalPage <= 1 ? null : (
       <ul className='flex flex-wrap justify-center gap-2'>
         {page > 1 && (
           <li className='w-fit'>
             <Link
               to={{
+                pathname: location.pathname,
                 search: getUpdatedSearch(page - 1)
               }}
               className='flex h-[36px] items-center justify-center border border-gray-300 w-[36px] rounded-sm'
@@ -106,6 +114,7 @@ export default function Pagination({ page, totalPage, pageKey = 'page' }: Props)
           <li className='w-fit'>
             <Link
               to={{
+                pathname: location.pathname,
                 search: getUpdatedSearch(page + 1)
               }}
               className='flex h-[36px] items-center justify-center border border-gray-300 w-[36px] rounded-sm'
@@ -124,6 +133,7 @@ export default function Pagination({ page, totalPage, pageKey = 'page' }: Props)
           </li>
         )}
       </ul>
+      )}
     </div>
   )
 }

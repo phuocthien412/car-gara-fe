@@ -5,6 +5,7 @@ import Skeleton from '@/components/Skeleton'
 import { useProjectDetail } from '@/hooks/useQueryData'
 import Zoom from 'react-medium-image-zoom'
 import 'react-medium-image-zoom/dist/styles.css'
+import PATH from '@/constants/path'
 
 export default function DuAnDetail() {
   const { id } = useParams()
@@ -86,7 +87,7 @@ export default function DuAnDetail() {
               {/* CTA */}
               <div className="mt-8">
                 <a
-                  href="/lien-he"
+                  href={PATH.LIEN_HE}
                   className="inline-block rounded-full bg-amber-500 px-6 py-3 text-white font-semibold shadow-md transition-all hover:bg-amber-400 hover:shadow-lg"
                 >
                   Liên hệ hợp tác

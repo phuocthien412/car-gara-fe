@@ -33,7 +33,7 @@ function isUploadObject(v: unknown): v is UploadObject {
 }
 
 export default function ImageUrlOrFile({
-  label = 'Ảnh (URL hoặc chọn file)',
+  label = 'Ảnh xem trước (URL hoặc chọn file)',
   value,
   onChange,
   className,

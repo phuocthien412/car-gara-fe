@@ -2,36 +2,36 @@ import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Wrench, PlusCircle, Edit3, Tag, X, Trash2 } from 'lucide-react'
-import dichvuApi from '@/apis/dichvu'
-import type { dichvu } from '@/types/dichvu'
+import { Film, PlusCircle, Edit3, Link2, X, Trash2 } from 'lucide-react'
+import videoApi from '@/apis/video'
+import type { video } from '@/types/video'
 import type { SuccessResponseApi } from '@/types/common'
-import type { ListDichVuResponsePagination } from '@/types/dichvu'
+import type { ListvideoResponsePagination } from '@/types/video'
 import Pagination from '@/components/Pagination'
 import PATH from '@/constants/path'
 
-export default function ManageDichVu() {
+export default function ManageVideo() {
   const [searchParams] = useSearchParams()
   const page = Number(searchParams.get('page') || '1')
   const limit = 12
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'dichvu', 'list', page, limit],
-    queryFn: () => dichvuApi.dichvuList({ page: String(page), limit: String(limit) })
+    queryKey: ['admin', 'video', 'list', page, limit],
+    queryFn: () => videoApi.videoList({ page: String(page), limit: String(limit) })
   })
 
-  const payload = (data?.data as SuccessResponseApi<ListDichVuResponsePagination> | undefined)?.data
-  const items: dichvu[] = payload?.data ?? []
+  const payload = (data?.data as SuccessResponseApi<ListvideoResponsePagination> | undefined)?.data
+  const items: video[] = payload?.data ?? []
   const totalPage = payload?.total_pages ?? 0
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [deleteTarget, setDeleteTarget] = useState<dichvu | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<video | null>(null)
   const qc = useQueryClient()
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => dichvuApi.deleteDichVu(id),
+    mutationFn: (id: string) => videoApi.deletevideo(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin', 'dichvu', 'list'] })
+      qc.invalidateQueries({ queryKey: ['admin', 'video', 'list'] })
       setDeleteTarget(null)
     }
   })
@@ -52,36 +52,31 @@ export default function ManageDichVu() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2 text-lg sm:text-2xl font-semibold">
-          <Wrench className="text-red-500" />
-          <span>Danh sách Dịch vụ</span>
+          <Film className="text-red-500" />
+          <span>Danh sách Video</span>
         </div>
+
         <Link
-          to={PATH.ADMIN_DICH_VU_CREATE}
-          className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-sm font-medium text-white shadow hover:shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-all duration-200"
+          to={PATH.ADMIN_VIDEO_CREATE}
+          className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-sm font-medium text-white shadow transition"
         >
           <PlusCircle size={18} />
           Thêm mới
         </Link>
 
-        {/* mobile add button */}
         <Link
-          to={PATH.ADMIN_DICH_VU_CREATE}
-          className="inline-flex sm:hidden items-center justify-center h-10 w-10 rounded-full bg-red-600 text-white shadow"
+          to={PATH.ADMIN_VIDEO_CREATE}
+          className="sm:hidden inline-flex items-center justify-center h-10 w-10 rounded-full bg-red-600 text-white"
           title="Thêm mới"
         >
           <PlusCircle size={18} />
         </Link>
       </div>
 
-      {/* Table / Cards container */}
+      {/* List */}
       <div className="space-y-3">
-        {isLoading && (
-          <div className="p-4 text-sm text-neutral-500 animate-pulse">Đang tải danh sách dịch vụ...</div>
-        )}
-
-        {!isLoading && items.length === 0 && (
-          <div className="p-4 text-sm text-neutral-500 text-center">Không có dịch vụ nào.</div>
-        )}
+        {isLoading && <div className="p-4 text-sm text-neutral-500 animate-pulse">Đang tải danh sách video...</div>}
+        {!isLoading && items.length === 0 && <div className="p-4 text-sm text-neutral-500 text-center">Không có video nào.</div>}
 
         {!isLoading &&
           items.map((item, index) => (
@@ -92,65 +87,56 @@ export default function ManageDichVu() {
               transition={{ delay: index * 0.03 }}
               className="group flex flex-col sm:grid sm:grid-cols-12 gap-3 p-3 sm:p-4 bg-neutral-900/30 rounded-lg border border-neutral-800 hover:shadow hover:bg-neutral-900/50 transition"
             >
-              {/* Left: image */}
-              <div className="flex items-start gap-3 col-span-5 sm:col-span-5">
+              <div className="flex items-start gap-3 col-span-10 sm:col-span-10">
                 {item.image ? (
                   <img
                     src={item.image}
-                    alt={item.title}
-                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
-                    className="h-14 w-14 rounded-md object-cover border border-neutral-700 cursor-pointer"
+                    alt={item.title || 'Video'}
+                    onError={(e) => { ; (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                    className="h-12 w-12 rounded-md object-cover border border-neutral-700 cursor-pointer"
                     onClick={() => setPreviewUrl(item.image || null)}
                   />
                 ) : (
-                  <div className="h-14 w-14 rounded-md bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500">
-                    <Tag size={18} />
+                  <div className="h-12 w-12 rounded-md bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500">
+                    <Film size={16} />
                   </div>
                 )}
 
-                <div className="flex-1">
-                  <div className="font-medium text-white text-sm sm:text-base">{item.title}</div>
-                  <div className="text-xs text-neutral-400 line-clamp-2 sm:line-clamp-3">{item.description || 'Không có mô tả'}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-white truncate">{item.title || 'Video'}</div>
+                  <div className="text-xs text-neutral-400 line-clamp-2">{item.description || 'Không có mô tả'}</div>
 
-                  {/* mobile meta row */}
+                  {/* mobile meta / quick actions */}
                   <div className="mt-2 flex items-center gap-2 text-xs sm:hidden">
-                    <div className="inline-flex items-center rounded-full bg-neutral-800/60 px-2 py-0.5 text-neutral-300">
-                      Số lượng: <span className="ml-1 font-medium text-white">{item.quantity ?? '-'}</span>
-                    </div>
-                    <div className={`inline-flex items-center rounded-full px-2 py-0.5 ${((item.quantity ?? 0) > 0) ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}`}>
-                      {(item.quantity ?? 0) > 0 ? 'Còn hàng' : 'Hết hàng'}
-                    </div>
+                    {item.url && (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 rounded-md bg-neutral-800 px-2 py-1 text-neutral-300"
+                      >
+                        <Link2 size={14} /> Xem video
+                      </a>
+                    )}
+                    <Link to={PATH.ADMIN_VIDEO_UPDATE.replace(':id', item._id)} className="inline-flex items-center gap-1 rounded-md bg-neutral-800 px-2 py-1 text-red-400">
+                      Sửa
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteTarget(item)}
+                      className="inline-flex items-center gap-1 rounded-md bg-neutral-800 px-2 py-1 text-red-400"
+                    >
+                      Xóa
+                    </button>
                   </div>
                 </div>
               </div>
 
-              {/* Middle (desktop): price / quantity / status */}
-              <div className="hidden sm:flex col-span-2 items-center text-xs md:text-sm text-neutral-300">
-                {item.price ? `${item.price.toLocaleString('vi-VN')} đ` : '-'}
-              </div>
-
-              <div className="hidden sm:flex col-span-2 items-center text-xs md:text-sm text-neutral-300">
-                {item.quantity ?? '-'}
-              </div>
-
-              <div className="hidden sm:flex col-span-2 items-center">
-                {(item.quantity ?? 0) > 0 ? (
-                  <span className="inline-flex items-center rounded-full bg-green-500/20 px-3 py-0.5 text-[11px] md:text-xs font-medium text-green-400">
-                    Còn hàng
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center rounded-full bg-red-500/20 px-3 py-0.5 text-[11px] md:text-xs font-medium text-red-400">
-                    Hết hàng
-                  </span>
-                )}
-              </div>
-
-              {/* Actions */}
-              <div className="col-span-1 mt-3 sm:mt-0 flex items-center justify-end gap-2">
+              <div className="col-span-2 mt-3 sm:mt-0 text-right flex items-center justify-end gap-2">
                 <Link
-                  to={PATH.ADMIN_DICH_VU_UPDATE.replace('${item._id}', item._id)}
+                  to={PATH.ADMIN_VIDEO_UPDATE.replace(':id', item._id)}
                   title="Sửa"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-neutral-800 hover:bg-neutral-700 text-red-400 transition-colors"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-neutral-800 hover:bg-neutral-700 text-red-400 transition-colors"
                 >
                   <Edit3 size={14} />
                 </Link>
@@ -159,7 +145,7 @@ export default function ManageDichVu() {
                   type="button"
                   title="Xóa"
                   onClick={() => setDeleteTarget(item)}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-neutral-800 hover:bg-red-700 text-red-400 hover:text-white transition-colors"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-neutral-800 hover:bg-red-700 text-red-400 hover:text-white transition-colors"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -193,9 +179,12 @@ export default function ManageDichVu() {
             <img
               src={previewUrl}
               alt="preview"
-              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+              onError={(e) => { ; (e.currentTarget as HTMLImageElement).style.display = 'none' }}
               className="max-h-[80vh] max-w-full rounded-md object-contain shadow-lg bg-neutral-900"
             />
+            <div className="mt-2 text-center text-sm text-neutral-300">
+              Nếu ảnh không hiển thị, kiểm tra URL hoặc thử mở trong tab mới.
+            </div>
           </div>
         </div>
       )}
@@ -208,11 +197,11 @@ export default function ManageDichVu() {
           role="dialog"
           aria-modal="true"
         >
-          <div className="w-full max-w-md rounded-lg bg-neutral-900 p-5" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-lg rounded-lg bg-neutral-900 p-6" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-semibold">Xác nhận xóa</h3>
-            <p className="mt-2 text-sm text-neutral-400">Bạn có chắc muốn xóa dịch vụ: <strong className="text-white">{deleteTarget.title}</strong>?</p>
+            <p className="mt-2 text-sm text-neutral-400">Bạn có chắc muốn xóa video: <strong className="text-white">{deleteTarget.title || 'Video'}</strong>?</p>
 
-            <div className="mt-5 flex justify-end gap-3">
+            <div className="mt-4 flex justify-end gap-3">
               <button
                 onClick={() => setDeleteTarget(null)}
                 className="rounded-md px-4 py-2 bg-neutral-800 text-neutral-200 hover:bg-neutral-700"
@@ -233,3 +222,4 @@ export default function ManageDichVu() {
     </div>
   )
 }
+

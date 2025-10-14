@@ -5,6 +5,7 @@ import Skeleton from '@/components/Skeleton'
 import { useProductDetail } from '@/hooks/useQueryData'
 import Zoom from 'react-medium-image-zoom'
 import 'react-medium-image-zoom/dist/styles.css'
+import PATH from '@/constants/path'
 
 export default function SanPhamDetail() {
   const { id } = useParams()
@@ -75,7 +76,7 @@ export default function SanPhamDetail() {
 
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
-                  href="/lien-he"
+                  href={PATH.LIEN_HE}
                   className="flex-1 rounded-full border border-amber-500 px-6 py-3 text-amber-600 font-semibold text-center hover:bg-amber-500 hover:text-white transition-all"
                 >
                   Liên hệ mua hàng

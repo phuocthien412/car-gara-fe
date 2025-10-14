@@ -6,6 +6,7 @@ import type { CreateDichVuReq, UpdateDichVuReq, dichvu } from '@/types/dichvu'
 import type { AxiosResponse } from 'axios'
 import ImageUrlOrFile from '@/components/ImageUrlOrFile'
 import type { SuccessResponseApi } from '@/types/common'
+import PATH from '@/constants/path'
 
 export default function EditDichVu() {
   const navigate = useNavigate()
@@ -38,7 +39,7 @@ export default function EditDichVu() {
     mutationFn: (payload: UpdateDichVuReq) => dichvuApi.updateDichVu(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'dichvu', 'list'] })
-      navigate('/admin/dich-vu')
+      navigate(PATH.ADMIN_DICH_VU)
     }
   })
 

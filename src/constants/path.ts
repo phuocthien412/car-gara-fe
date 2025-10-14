@@ -14,7 +14,23 @@ const PATH = {
   DU_AN_DETAIL: '/car-gara-fe/du-an/:duAnId',
   TIN_TUC: '/car-gara-fe/tin-tuc',
   TIN_TUC_DETAIL: '/car-gara-fe/tin-tuc/:tinTucId',
- 
+  ADMIN_DICH_VU: '/admin/dich-vu',
+  ADMIN_DICH_VU_CREATE: '/admin/dich-vu/create',
+  ADMIN_DICH_VU_UPDATE: '/admin/dich-vu/update/${item._id}',
+  ADMIN_SAN_PHAM: '/admin/san-pham',
+  ADMIN_SAN_PHAM_CREATE: '/admin/san-pham/create',
+  ADMIN_SAN_PHAM_UPDATE: '/admin/san-pham/update/${item._id}',
+  ADMIN_TIN_TUC: '/admin/tin-tuc',
+  ADMIN_TIN_TUC_CREATE: '/admin/tin-tuc/create',
+  ADMIN_TIN_TUC_UPDATE: '/admin/tin-tuc/update/${item._id}',
+  ADMIN_VIDEO: '/admin/video',
+  ADMIN_VIDEO_CREATE: '/admin/video/create',
+  ADMIN_VIDEO_UPDATE: '/admin/video/update/:id',
+  ADMIN_DU_AN: '/admin/du-an',
+  ADMIN_DU_AN_CREATE: '/admin/du-an/create',
+  ADMIN_DU_AN_UPDATE: '/admin/du-an/update/${item._id}',
+  ADMIN_LIEN_HE: '/admin/lien-he',
+
 } as const
 
 export default PATH

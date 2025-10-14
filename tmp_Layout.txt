@@ -8,8 +8,8 @@ import {
   Package,
   Newspaper,
   Folder,
-  Mail,
   Film,
+  Mail,
   Sun,
   Moon,
   User,
@@ -109,14 +109,6 @@ export default function AdminLayout() {
               </NavLink>
             )
           })}
-          <NavLink
-            to="/admin/video"
-            className={linkClass}
-            title={collapsed ? 'Video' : undefined}
-          >
-            <Film size={18} />
-            <span className={collapsed ? 'sr-only' : 'inline'}>Video</span>
-          </NavLink>
         </nav>
 
       </aside>
@@ -209,14 +201,6 @@ export default function AdminLayout() {
                     </NavLink>
                   )
                 })}
-                <NavLink
-                  to="/admin/video"
-                  className={mobileLinkClass}
-                  onClick={() => setMenuOpen(false)}
-                >
-                  <Film size={16} />
-                  Video
-                </NavLink>
               </nav>
             </div>
           )}

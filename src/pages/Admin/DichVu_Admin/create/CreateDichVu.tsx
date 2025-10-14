@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import dichvuApi from '@/apis/dichvu'
 import type { CreateDichVuReq } from '@/types/dichvu'
 import ImageUrlOrFile from '@/components/ImageUrlOrFile'
+import PATH from '@/constants/path'
 
 export default function CreateDichVu() {
   const navigate = useNavigate()
@@ -22,7 +23,7 @@ export default function CreateDichVu() {
     mutationFn: (payload: CreateDichVuReq) => dichvuApi.createDichVu(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'dichvu', 'list'] })
-      navigate('/admin/dich-vu')
+      navigate(PATH.ADMIN_DICH_VU)
     }
   })
 

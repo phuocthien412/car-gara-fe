@@ -1,7 +1,7 @@
 ﻿import { motion } from 'framer-motion'
 import LazyImage from '@/components/LazyImage'
 import Skeleton from '@/components/Skeleton'
-import { useServices, usePosts, useContact } from '@/hooks/useQueryData'
+import { useServices, usePosts, useContact, useVideos } from '@/hooks/useQueryData'
 import { images } from '@/mocks/db'
 import PATH from '@/constants/path'
 
@@ -26,6 +26,7 @@ export default function Home() {
   const { data: services, isLoading: loadingServices } = useServices()
   const { data: contact } = useContact()
   const { data: posts, isLoading: loadingPosts } = usePosts()
+  const { data: videos, isLoading: loadingVideos } = useVideos()
 
   // ⚙️ Hiển thị tên gara: ưu tiên contact.name, fallback là "H86 Thuận"
   const GARAGE_LOCAL = contact?.name?.trim() || 'H86 Thuận'
@@ -248,6 +249,59 @@ export default function Home() {
 
       </section>
 
+      {/* MY VIDEO */}
+      <section className="container-pad py-16 sm:py-20">
+        <div className="mb-10 flex items-end justify-between">
+          <h2 className="text-3xl font-bold">
+            <span className="bg-gradient-to-r from-neutral-900 to-neutral-700 bg-clip-text text-transparent">
+              My video
+            </span>
+          </h2>
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-3">
+          {loadingVideos && (
+            <>
+              <Skeleton className="h-56" />
+              <Skeleton className="h-56" />
+              <Skeleton className="h-56" />
+            </>
+          )}
+
+          {!loadingVideos && (!videos || videos.length === 0) && (
+            <div className="col-span-full rounded-2xl border border-dashed border-neutral-200 bg-white p-8 text-center">
+              <Star className="mx-auto mb-3 size-8 text-neutral-400" />
+              <div className="font-semibold">Chưa có video</div>
+              <p className="mt-1 text-sm text-neutral-600">Nội dung sẽ được cập nhật sớm.</p>
+            </div>
+          )}
+
+          {videos?.slice(0, 3).map((v, i) => (
+            <motion.article
+              key={v.id ?? i}
+              {...fadeUp(i * 0.05)}
+              className="group overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-neutral-100 transition-all hover:-translate-y-1 hover:shadow-xl"
+            >
+              <a href={v.url || '#'} target={v.url ? '_blank' : undefined} rel={v.url ? 'noopener noreferrer' : undefined} className="block">
+                <div className="relative">
+                  <LazyImage
+                    src={v.image}
+                    alt={v.title || 'Video'}
+                    className="h-44 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent" />
+                </div>
+                <div className="p-5">
+                  <h3 className="text-lg font-semibold text-neutral-900 transition-colors group-hover:text-amber-600">
+                    {v.title || 'Video'}
+                  </h3>
+                </div>
+              </a>
+            </motion.article>
+          ))}
+        </div>
+      </section>
+
       {/* POSTS */}
       <section className="container-pad bg-gradient-to-b from-neutral-100 to-white py-16 sm:py-20">
         <div className="mb-10 flex items-end justify-between">
@@ -306,7 +360,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FINAL CTA */}
+      {/* FINAL INFO */}
       <section className="container-pad pb-16">
         <div className="relative overflow-hidden rounded-2xl bg-neutral-900">
           <div className="absolute inset-0 bg-[radial-gradient(1200px_600px_at_100%_0%,rgba(251,191,36,0.18),transparent_60%)]" />

@@ -2,20 +2,23 @@ import { useQuery } from '@tanstack/react-query'
 import dichvuApi from '@/apis/dichvu'
 import sanphamApi from '@/apis/sanpham'
 import duanApi from '@/apis/duan'
+import videoApi from '@/apis/video'
 import tintucApi from '@/apis/tintuc'
 import lienheApi from '@/apis/lienhe'
 import type { SuccessResponseApi } from '@/types/common'
 import type { ListDichVuResponsePagination } from '@/types/dichvu'
 import type { ListSanPhamResponsePagination } from '@/types/sanpham'
 import type { ListDuAnResponsePagination } from '@/types/duan'
+import type { ListvideoResponsePagination } from '@/types/video'
 import type { ListtintucResponsePagination } from '@/types/tintuc'
 import type { dichvu } from '@/types/dichvu'
 import type { sanpham } from '@/types/sanpham'
 import type { duan } from '@/types/duan'
+import type { video } from '@/types/video'
 import type { tintuc } from '@/types/tintuc'
 import type { lienhe, ListLienHeResponsePagination } from '@/types/lienhe'
 
-export type CardItem = { id: string; title: string; description?: string; price?: number; image?: string }
+export type CardItem = { id: string; title: string; description?: string; price?: number; image?: string; url?: string }
 
 
 
@@ -63,6 +66,23 @@ export function usePosts() {
         title: p.title,
         description: p.description,
         image: p.image
+      }))
+    }
+  })
+}
+
+export function useVideos() {
+  return useQuery<CardItem[]>({
+    queryKey: ['videos'],
+    queryFn: async () => {
+      const res = await videoApi.videoList({ page: '1', limit: '6' })
+      const data = (res.data as SuccessResponseApi<ListvideoResponsePagination>).data
+      return data.data.map((v) => ({
+        id: v._id,
+        title: v.title || 'Video',
+        description: v.description,
+        image: v.image,
+        url: (v as video).url
       }))
     }
   })

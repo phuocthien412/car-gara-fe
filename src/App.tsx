@@ -26,6 +26,9 @@ import CreateTinTuc from './pages/Admin/TinTuc_Admin/create/CreateTinTuc'
 import EditTinTuc from './pages/Admin/TinTuc_Admin/update/EditTinTuc'
 import CreateDuAn from './pages/Admin/DuAn_Admin/create/CreateDuAn'
 import EditDuAn from './pages/Admin/DuAn_Admin/update/EditDuAn'
+import ManageVideo from './pages/Admin/Video_Admin/read/ManageVideo'
+import CreateVideo from './pages/Admin/Video_Admin/create/CreateVideo'
+import EditVideo from './pages/Admin/Video_Admin/update/EditVideo'
 
 const Home = lazy(() => import('./pages/Home/Home'))
 const DichVu = lazy(() => import('./pages/DichVu/DichVu'))
@@ -105,6 +108,9 @@ function RouterWithLayout() {
               <Route path="tin-tuc" element={<ManageTinTuc />} />
               <Route path="tin-tuc/create" element={<CreateTinTuc />} />
               <Route path="tin-tuc/update/:id" element={<EditTinTuc />} />
+              <Route path="video" element={<ManageVideo />} />
+              <Route path="video/create" element={<CreateVideo />} />
+              <Route path="video/update/:id" element={<EditVideo />} />
               <Route path="du-an" element={<ManageDuAn />} />
               <Route path="du-an/create" element={<CreateDuAn />} />
               <Route path="du-an/update/:id" element={<EditDuAn />} />

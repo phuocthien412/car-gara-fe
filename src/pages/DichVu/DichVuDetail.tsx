@@ -6,6 +6,7 @@ import { useServiceDetail } from '@/hooks/useQueryData'
 import Zoom from 'react-medium-image-zoom'
 import 'react-medium-image-zoom/dist/styles.css'
 import { useNavigate } from 'react-router-dom'
+import PATH from '@/constants/path'
 export default function DichVuDetail() {
   const { id } = useParams()
   const navigate = useNavigate()
@@ -84,7 +85,7 @@ export default function DichVuDetail() {
                 Cần tư vấn hoặc đặt lịch? Hãy liên hệ với chúng tôi để được hỗ trợ nhanh nhất.
               </p>
               <a
-                href="/lien-he"
+                href={PATH.LIEN_HE}
                 className="inline-block rounded-full bg-amber-500 px-6 py-3 text-white font-semibold shadow-md transition-all hover:bg-amber-400 hover:shadow-lg"
               >
                 Liên hệ ngay

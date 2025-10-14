@@ -6,6 +6,7 @@ import { usePostDetail } from '@/hooks/useQueryData'
 import Zoom from 'react-medium-image-zoom'
 import 'react-medium-image-zoom/dist/styles.css'
 import { useNavigate } from 'react-router-dom'
+import PATH from '@/constants/path'
 
 export default function TinTucDetail() {
   const { id } = useParams()
@@ -87,7 +88,7 @@ export default function TinTucDetail() {
             </p>
             <div className="mt-6">
               <a
-                href="/lien-he"
+                href={PATH.LIEN_HE}
                 className="inline-block rounded-full bg-amber-500 px-6 py-3 text-white font-semibold shadow-md transition-all hover:bg-amber-400 hover:shadow-lg"
               >
                 Liên hệ với chúng tôi

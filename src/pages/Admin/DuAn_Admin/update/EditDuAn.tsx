@@ -6,6 +6,7 @@ import type { CreateDuAnReq, UpdateDuAnReq, duan } from '@/types/duan'
 import type { AxiosResponse } from 'axios'
 import ImageUrlOrFile from '@/components/ImageUrlOrFile'
 import type { SuccessResponseApi } from '@/types/common'
+import PATH from '@/constants/path'
 
 export default function EditDuAn() {
   const navigate = useNavigate()
@@ -36,7 +37,7 @@ export default function EditDuAn() {
     mutationFn: (payload: UpdateDuAnReq) => duanApi.updateDuAn(payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin', 'duan', 'list'] })
-      navigate('/admin/du-an')
+      navigate(PATH.ADMIN_DU_AN)
     }
   })
 
@@ -78,7 +79,7 @@ export default function EditDuAn() {
           <button type="submit" className="w-full sm:w-auto rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-white shadow hover:shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-all">
             Cập nhật
           </button>
-          <button type="button" onClick={() => navigate('/admin/du-an')} className="w-full sm:w-auto rounded-lg bg-neutral-800 px-4 py-2 text-neutral-200 border border-neutral-700 hover:bg-neutral-800/70">
+          <button type="button" onClick={() => navigate(PATH.ADMIN_DU_AN)} className="w-full sm:w-auto rounded-lg bg-neutral-800 px-4 py-2 text-neutral-200 border border-neutral-700 hover:bg-neutral-800/70">
             Hủy
           </button>
         </div>
