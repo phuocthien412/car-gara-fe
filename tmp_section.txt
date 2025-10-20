@@ -1,0 +1,120 @@
+import { useEffect, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link, useSearchParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { Wrench, PlusCircle, Edit3, Tag, X, Trash2 } from 'lucide-react'
+import dichvuApi from '@/apis/dichvu'
+import type { dichvu } from '@/types/dichvu'
+import type { SuccessResponseApi } from '@/types/common'
+import type { ListDichVuResponsePagination } from '@/types/dichvu'
+import Pagination from '@/components/Pagination'
+import PATH from '@/constants/path'
+import Search from '@/components/search' // added
+
+export default function ManageDichVu() {
+  const [searchParams] = useSearchParams()
+  const page = Number(searchParams.get('page') || '1')
+  const limit = 12
+
+  // build queryConfig preserving existing params except page
+  const queryConfig = Object.fromEntries(
+    [...searchParams].filter(([k]) => k !== 'page')
+  ) as Record<string, string>
+
+  const searchValue = searchParams.get('title') ?? ''
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin', 'dichvu', 'list', page, limit, queryConfig],
+    queryFn: () =>
+      dichvuApi.dichvuList({
+        page: String(page),
+        limit: String(limit),
+        // spread existing queryConfig so backend receives search params as well
+        ...(queryConfig ?? {})
+      })
+  })
+
+  const payload = (data?.data as SuccessResponseApi<ListDichVuResponsePagination> | undefined)?.data
+  const items: dichvu[] = payload?.data ?? []
+  const totalPage = payload?.total_pages ?? 0
+
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<dichvu | null>(null)
+  const qc = useQueryClient()
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => dichvuApi.deleteDichVu(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin', 'dichvu', 'list'] })
+      setDeleteTarget(null)
+    }
+  })
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setPreviewUrl(null)
+        setDeleteTarget(null)
+      }
+    }
+    if (previewUrl || deleteTarget) document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [previewUrl, deleteTarget])
+
+  return (
+    <div className="min-h-[80vh] rounded-xl bg-neutral-950 text-neutral-100 p-4 sm:p-6 shadow-inner border border-neutral-800">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+        <div className="flex items-center gap-2 text-lg sm:text-2xl font-semibold">
+          <Wrench className="text-red-500" />
+          <span>Danh sách Dịch vụ</span>
+        </div>
+
+        {/* search + actions */}
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <Search
+            queryConfig={queryConfig}
+            value={searchValue}
+            payloadField={[{ text: 'title' }]}
+            placeholderSearch="Tìm dịch vụ theo tên..."
+          />
+
+          <Link
+            to={PATH.ADMIN_DICH_VU_CREATE}
+            className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-sm font-medium text-white shadow hover:shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-all duration-200"
+          >
+            <PlusCircle size={18} />
+            Thêm mới
+          </Link>
+
+          {/* mobile add button */}
+          <Link
+            to={PATH.ADMIN_DICH_VU_CREATE}
+            className="inline-flex sm:hidden items-center justify-center h-10 w-10 rounded-full bg-red-600 text-white shadow"
+            title="Thêm mới"
+          >
+            <PlusCircle size={18} />
+          </Link>
+        </div>
+      </div>
+
+      {/* Table / Cards container */}
+      <div className="space-y-3">
+        {isLoading && (
+          <div className="p-4 text-sm text-neutral-500 animate-pulse">Đang tải danh sách dịch vụ...</div>
+        )}
+
+        {!isLoading && items.length === 0 && (
+          <div className="p-4 text-sm text-neutral-500 text-center">Không có dịch vụ nào.</div>
+        )}
+
+        {!isLoading &&
+          items.map((item, index) => (
+            <motion.div
+              key={item._id}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.03 }}
+              className="group flex flex-col sm:grid sm:grid-cols-12 gap-3 p-3 sm:p-4 bg-neutral-900/30 rounded-lg border border-neutral-800 hover:shadow hover:bg-neutral-900/50 transition"
+            >
+              {/* Left: image */}

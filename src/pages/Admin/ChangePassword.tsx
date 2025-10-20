@@ -3,7 +3,6 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import adminApi from '@/apis/admin'
 import { getProfileFromLS, filterPayload, isAxiosError } from '@/utils/common'
-import bcrypt from 'bcryptjs'
 import type { ErrorResponseApi } from '@/types/common'
 
 export default function ChangePassword() {
@@ -20,9 +19,7 @@ export default function ChangePassword() {
   const mutation = useMutation({
     mutationFn: async () => {
       if (!userId) throw new Error('Không tìm thấy tài khoản hiện tại')
-      const salt = await bcrypt.genSalt(10)
-      const hashed = await bcrypt.hash(newPassword, salt)
-      const body = filterPayload({ id: userId, password: hashed })
+      const body = filterPayload({ id: userId, password: newPassword })
       return adminApi.updateUser(body)
     },
     onSuccess: () => {

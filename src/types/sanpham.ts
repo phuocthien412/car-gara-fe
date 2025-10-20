@@ -40,5 +40,6 @@ export interface ListSanPhamResponsePagination {
 
 export interface ListSanPhamReqParams extends Pick<TQueryConfig, 'page' | 'limit'> {
   q?: string;
+  title?: string;
   sort_order?: SortOrderData;
 }

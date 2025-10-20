@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate, createSearchParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FileText, PlusCircle, Edit3, Tag, X, Trash2 } from 'lucide-react'
 import tintucApi from '@/apis/tintuc'
@@ -13,16 +13,49 @@ import PATH from '@/constants/path'
 export default function ManageTinTuc() {
   const [searchParams] = useSearchParams()
   const page = Number(searchParams.get('page') || '1')
-  const limit = 12
+  const queryConfig = Object.fromEntries(
+    [...searchParams].filter(([k]) => k !== 'page')
+  ) as Record<string, string>
+  const limit = 5
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'tintuc', 'list', page, limit],
-    queryFn: () => tintucApi.tintucList({ page: String(page), limit: String(limit) })
+    queryKey: ['admin', 'tintuc', 'list', page, limit, queryConfig],
+    queryFn: () =>
+      tintucApi.tintucList({
+        page: String(page),
+        limit: String(limit),
+        ...(queryConfig ?? {})
+      })
   })
 
   const payload = (data?.data as SuccessResponseApi<ListtintucResponsePagination> | undefined)?.data
   const items: tintuc[] = payload?.data ?? []
   const totalPage = payload?.total_pages ?? 0
+
+  const searchValue = searchParams.get('title') ?? ''
+
+  // local search input state (sync with url)
+  const [q, setQ] = useState(searchValue)
+  useEffect(() => {
+    setQ(searchValue)
+  }, [searchValue])
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (payload && totalPage > 0 && page > totalPage) {
+      navigate(
+        {
+          pathname: '',
+          search: createSearchParams({
+            ...queryConfig,
+            page: '1'
+          }).toString()
+        },
+        { replace: true }
+      )
+    }
+  }, [payload, totalPage, page, queryConfig, navigate])
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<tintuc | null>(null)
@@ -71,6 +104,64 @@ export default function ManageTinTuc() {
         >
           <PlusCircle size={18} />
         </Link>
+      </div>
+
+      <div className="mb-4">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              navigate(
+                {
+                  pathname: '',
+                  search: createSearchParams({
+                    ...queryConfig,
+                    ...(q ? { title: q } : {}),
+                    page: '1'
+                  }).toString()
+                },
+                { replace: false }
+              )
+            }}
+            className="flex items-center gap-2"
+          >
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Tìm tin tức theo tên..."
+              className="w-[220px] sm:w-[320px] rounded-md bg-neutral-800/60 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none"
+              aria-label="Tìm theo tên tin tức"
+            />
+            <button
+              type="submit"
+              className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-3 py-2 text-sm font-medium text-white"
+            >
+              Tìm
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setQ('')
+                navigate(
+                  {
+                    pathname: '',
+                    search: createSearchParams({
+                      ...Object.fromEntries(
+                        [...Object.entries(queryConfig)].filter(([k]) => k !== 'title')
+                      ),
+                      page: '1'
+                    }).toString()
+                  },
+                  { replace: false }
+                )
+              }}
+              title="Xóa tìm kiếm"
+              className="inline-flex items-center justify-center h-9 w-9 rounded-md bg-neutral-800 hover:bg-neutral-700 text-red-400 transition-colors"
+            >
+              <X size={14} />
+            </button>
+          </form>
+        </div>
       </div>
 
       {/* List */}

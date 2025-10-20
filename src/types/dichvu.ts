@@ -39,5 +39,6 @@ export interface ListDichVuResponsePagination {
 
 export interface ListDichVuReqParams extends Pick<TQueryConfig, 'page' | 'limit'> {
   q?: string;
+  title?: string;
   sort_order?: SortOrderData;
 }

@@ -42,10 +42,18 @@ export default function ImageUrlOrFile({
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [uploadedFilename, setUploadedFilename] = useState<string | null>(null)
+  const MAX_IMAGE_SIZE = 10 * 1024 * 1024 // 10MB
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    if (file.size > MAX_IMAGE_SIZE) {
+      setError('Kích thước ảnh tối đa 10MB')
+      // reset input value to allow selecting the same file again
+      e.target.value = ''
+      return
+    }
 
     try {
       setUploading(true)

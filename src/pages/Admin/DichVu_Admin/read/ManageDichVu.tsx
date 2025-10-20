@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams, createSearchParams, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Wrench, PlusCircle, Edit3, Tag, X, Trash2 } from 'lucide-react'
 import dichvuApi from '@/apis/dichvu'
@@ -13,16 +13,54 @@ import PATH from '@/constants/path'
 export default function ManageDichVu() {
   const [searchParams] = useSearchParams()
   const page = Number(searchParams.get('page') || '1')
-  const limit = 12
+  const limit = 5
+
+  // build queryConfig preserving existing params except page
+  const queryConfig = Object.fromEntries(
+    [...searchParams].filter(([k]) => k !== 'page')
+  ) as Record<string, string>
+
+  const searchValue = searchParams.get('title') ?? ''
+
+  // local search input state (sync with url)
+  const [q, setQ] = useState(searchValue)
+  useEffect(() => {
+    setQ(searchValue)
+  }, [searchValue])
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'dichvu', 'list', page, limit],
-    queryFn: () => dichvuApi.dichvuList({ page: String(page), limit: String(limit) })
+    queryKey: ['admin', 'dichvu', 'list', page, limit, queryConfig],
+    queryFn: () =>
+      dichvuApi.dichvuList({
+        page: String(page),
+        limit: String(limit),
+        ...(queryConfig ?? {})
+      })
   })
-
+ 
   const payload = (data?.data as SuccessResponseApi<ListDichVuResponsePagination> | undefined)?.data
   const items: dichvu[] = payload?.data ?? []
-  const totalPage = payload?.total_pages ?? 0
+  const totalPage = Number(
+    payload?.total_pages ??
+      0
+  )
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (payload && totalPage > 0 && page > totalPage) {
+      navigate(
+        {
+          pathname: '',
+          search: createSearchParams({
+            ...queryConfig,
+            page: '1'
+          }).toString()
+        },
+        { replace: true }
+      )
+    }
+  }, [payload, totalPage, page, queryConfig, navigate])
 
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<dichvu | null>(null)
@@ -31,7 +69,14 @@ export default function ManageDichVu() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => dichvuApi.deleteDichVu(id),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['admin', 'dichvu', 'list'] })
+      // đảm bảo invalidate tất cả query list có cùng prefix để refetch đúng list + pagination
+      qc.invalidateQueries({
+        predicate: (query) =>
+          Array.isArray(query.queryKey) &&
+          query.queryKey[0] === 'admin' &&
+          query.queryKey[1] === 'dichvu' &&
+          query.queryKey[2] === 'list'
+      })
       setDeleteTarget(null)
     }
   })
@@ -50,27 +95,86 @@ export default function ManageDichVu() {
   return (
     <div className="min-h-[80vh] rounded-xl bg-neutral-950 text-neutral-100 p-4 sm:p-6 shadow-inner border border-neutral-800">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
         <div className="flex items-center gap-2 text-lg sm:text-2xl font-semibold">
           <Wrench className="text-red-500" />
           <span>Danh sách Dịch vụ</span>
         </div>
-        <Link
-          to={PATH.ADMIN_DICH_VU_CREATE}
-          className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-sm font-medium text-white shadow hover:shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-all duration-200"
-        >
-          <PlusCircle size={18} />
-          Thêm mới
-        </Link>
 
-        {/* mobile add button */}
-        <Link
-          to={PATH.ADMIN_DICH_VU_CREATE}
-          className="inline-flex sm:hidden items-center justify-center h-10 w-10 rounded-full bg-red-600 text-white shadow"
-          title="Thêm mới"
-        >
-          <PlusCircle size={18} />
-        </Link>
+        {/* search + actions */}
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          {/* Inline search form (search by title, reset page = 1) */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              navigate(
+                {
+                  pathname: '',
+                  search: createSearchParams({
+                    ...queryConfig,
+                    ...(q ? { title: q } : {}),
+                    page: '1'
+                  }).toString()
+                },
+                { replace: false }
+              )
+            }}
+            className="flex items-center gap-2"
+          >
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Tìm dịch vụ theo tên..."
+              className="w-[220px] sm:w-[320px] rounded-md bg-neutral-800/60 px-3 py-2 text-sm text-neutral-100 placeholder:text-neutral-500 focus:outline-none"
+              aria-label="Tìm theo tên dịch vụ"
+            />
+            <button
+              type="submit"
+              className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-3 py-2 text-sm font-medium text-white"
+            >
+              Tìm
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setQ('')
+                navigate(
+                  {
+                    pathname: '',
+                    search: createSearchParams({
+                      ...Object.fromEntries(
+                        [...Object.entries(queryConfig)].filter(([k]) => k !== 'title')
+                      ),
+                      page: '1'
+                    }).toString()
+                  },
+                  { replace: false }
+                )
+              }}
+              title="Xóa tìm kiếm"
+              className="inline-flex items-center justify-center h-9 w-9 rounded-md bg-neutral-800 hover:bg-neutral-700 text-red-400 transition-colors"
+            >
+              <X size={14} />
+            </button>
+          </form>
+
+          <Link
+            to={PATH.ADMIN_DICH_VU_CREATE}
+            className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-red-600 to-rose-700 px-4 py-2 text-sm font-medium text-white shadow hover:shadow-[0_0_15px_rgba(255,0,0,0.5)] transition-all duration-200"
+          >
+            <PlusCircle size={18} />
+            Thêm mới
+          </Link>
+
+          {/* mobile add button */}
+          <Link
+            to={PATH.ADMIN_DICH_VU_CREATE}
+            className="inline-flex sm:hidden items-center justify-center h-10 w-10 rounded-full bg-red-600 text-white shadow"
+            title="Thêm mới"
+          >
+            <PlusCircle size={18} />
+          </Link>
+        </div>
       </div>
 
       {/* Table / Cards container */}
@@ -233,3 +337,4 @@ export default function ManageDichVu() {
     </div>
   )
 }
+
