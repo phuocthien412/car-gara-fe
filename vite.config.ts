@@ -5,12 +5,11 @@ import path from 'path'
 import { resolve } from 'path'
 
 export default defineConfig({
-  // Base path for GitHub Pages project site
-  base: '/car-gara-fe/',
+
   plugins: [react(), tailwindcss()],
   server: {
     host: '0.0.0.0',
-    port: 3000
+    port: 8080
   },
   preview: {
     host: '0.0.0.0',

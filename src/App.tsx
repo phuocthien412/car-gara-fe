@@ -186,7 +186,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <BrowserRouter basename="/car-gara-fe/">
+        <BrowserRouter>
           <RouterWithLayout />
         </BrowserRouter>
       </ThemeProvider>
