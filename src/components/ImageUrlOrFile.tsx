@@ -50,7 +50,6 @@ export default function ImageUrlOrFile({
 
     if (file.size > MAX_IMAGE_SIZE) {
       setError('Kích thước ảnh tối đa 10MB')
-      // reset input value to allow selecting the same file again
       e.target.value = ''
       return
     }
@@ -58,30 +57,35 @@ export default function ImageUrlOrFile({
     try {
       setUploading(true)
       setError(null)
+
       const form = new FormData()
       form.append('files', file)
       form.append('upload_folder', targetFolder)
+
       const res = await adminApi.uploadImages(form)
       const raw = res.data?.data as unknown
 
       let firstUrl: string | undefined
       let filenameFromRes: string | undefined
 
+      const envBase =
+        import.meta.env.VITE_API_ENDPOINT?.replace(/\/+$/, '') ||
+        window.location.origin
+
       if (isUploadArray(raw)) {
         const item = raw[0] as UploadItem
         filenameFromRes = item?.filename
+
         if (item?.url) {
+          // ✅ Nếu BE trả về url đầy đủ thì dùng luôn
           firstUrl = item.url
         } else {
-          const httpBase = (item?.http || '').trim()
-          const envBase = ((import.meta as unknown as { env?: { VITE_API_ENDPOINT?: string } }).env?.VITE_API_ENDPOINT as string) ||
-            window.location.origin
-          const base = (httpBase || envBase).replace(/\/+$/, '')
+          // ✅ Luôn ưu tiên envBase (không dùng httpBase để tránh localhost)
           const folder = (item?.upload_folder || '').replace(/^\/+/, '')
           if (filenameFromRes) {
-            firstUrl = folder ? `${base}/${folder}/${filenameFromRes}` : `${base}/${filenameFromRes}`
-          } else if (httpBase) {
-            firstUrl = httpBase
+            firstUrl = folder
+              ? `${envBase}/${folder}/${filenameFromRes}`
+              : `${envBase}/${filenameFromRes}`
           }
         }
       } else if (isUploadObject(raw)) {
@@ -96,31 +100,25 @@ export default function ImageUrlOrFile({
       } else {
         setError('Không lấy được URL ảnh trả về từ server.')
       }
-    } catch {
+    } catch (err) {
+      console.error('Upload error:', err)
       setError('Tải ảnh thất bại. Vui lòng thử lại.')
     } finally {
       setUploading(false)
-      // reset input value to allow selecting the same file again
       e.target.value = ''
     }
   }
 
   const displayName = useMemo(() => {
-    // ưu tiên filename trả về từ server sau upload
     if (uploadedFilename) return uploadedFilename
     if (!value) return ''
 
     try {
       const u = new URL(value, window.location.origin)
       const parts = u.pathname.split('/').filter(Boolean)
-
-      // Nếu có path và phần cuối không rỗng -> đó là tên file
       if (parts.length) return decodeURIComponent(parts[parts.length - 1])
-
-      // Không có path (server trả base URL như http://localhost:9000) -> không biết tên file
       return 'Không có tên file (server trả base URL)'
     } catch {
-      // fallback: nếu value chứa '/', lấy phần cuối; nếu không, trả value raw
       const parts = value.split('/').filter(Boolean)
       if (parts.length) return decodeURIComponent(parts[parts.length - 1])
       return value
@@ -135,24 +133,39 @@ export default function ImageUrlOrFile({
           className="flex-1 rounded border border-neutral-800 bg-neutral-800/60 px-3 py-2 text-neutral-100 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-red-500"
           value={value || ''}
           onChange={(e) => {
-            // clear uploadedFilename khi user nhập URL thủ công
             setUploadedFilename(null)
             onChange(e.target.value)
           }}
           placeholder="https://..."
         />
         <label
-          className={`inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors ${uploading ? 'opacity-60' : ''} border-neutral-700 text-neutral-200 bg-neutral-900 hover:bg-neutral-800 cursor-pointer`}
+          className={`inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors ${
+            uploading ? 'opacity-60' : ''
+          } border-neutral-700 text-neutral-200 bg-neutral-900 hover:bg-neutral-800 cursor-pointer`}
         >
-          <input type="file" accept="image/*" className="hidden" onChange={onFileChange} disabled={uploading} />
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={onFileChange}
+            disabled={uploading}
+          />
           {uploading ? 'Đang tải...' : 'Chọn file'}
         </label>
       </div>
       {error && <div className="mt-1 text-xs text-red-400">{error}</div>}
       {value && (
         <div className="mt-2">
-          <img src={value} alt="preview" className="h-24 w-auto rounded border border-neutral-800 object-cover" />
-          {displayName && <div className="mt-1 text-xs text-neutral-400">Tên ảnh: {displayName}</div>}
+          <img
+            src={value}
+            alt="preview"
+            className="h-24 w-auto rounded border border-neutral-800 object-cover"
+          />
+          {displayName && (
+            <div className="mt-1 text-xs text-neutral-400">
+              Tên ảnh: {displayName}
+            </div>
+          )}
         </div>
       )}
     </div>
