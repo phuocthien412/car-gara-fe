@@ -15,7 +15,7 @@ export default function Footer() {
     <footer className="mt-20 border-t border-neutral-200/70 bg-neutral-50">
       <div className="container-pad grid gap-10 py-12 md:grid-cols-4">
         <div>
-          <div className="text-lg font-semibold text-red-600">Gara Auto Pro</div>
+          <div className="text-lg font-semibold text-red-600">H86 THUẬN</div>
           <p className="mt-2 text-sm text-neutral-600">
             Dịch vụ bảo dưỡng, sửa chữa, độ xe và phụ tùng chính hãng. Uy tín – Chuyên nghiệp – Tận tâm.
           </p>
@@ -95,7 +95,7 @@ export default function Footer() {
         <div className="mx-auto w-full">
           <div className="w-full h-56 md:h-80 lg:h-96">
             <iframe
-              title="Bản đồ Gara Auto Pro - toàn màn hình"
+              title="Bản đồ H86 THUẬN - toàn màn hình"
               src={mapEmbed}
               width="100%"
               height="100%"
@@ -113,7 +113,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-neutral-200 py-4 text-center text-xs text-neutral-500">
-        © {new Date().getFullYear()} Gara Auto Pro. All rights reserved.
+        © {new Date().getFullYear()} H86 THUẬN. All rights reserved.
       </div>
     </footer>
   )

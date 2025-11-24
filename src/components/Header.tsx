@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { Car } from 'lucide-react'
 import { useTheme } from '@/contexts/ThemeContext'
 
 export default function Header() {
@@ -24,8 +23,8 @@ export default function Header() {
     <header className={`sticky top-0 z-50 border-b backdrop-blur supports-[backdrop-filter]:bg-white/60 ${isDark ? 'border-neutral-800 bg-neutral-900/80' : 'border-neutral-200 bg-white/80'}`}>
       <div className="container-pad flex h-16 items-center justify-between">
         <NavLink to="/" className="flex items-center gap-3 text-xl font-bold text-brand">
-          <Car className="h-6 w-6" aria-hidden />
-          Gara Auto Pro
+          <img src="/xe.gif" alt="H86 Thuận" className="h-12 w-12 object-contain" aria-hidden />
+          H86 THUẬN
         </NavLink>
 
         <nav className="hidden gap-6 md:flex">
