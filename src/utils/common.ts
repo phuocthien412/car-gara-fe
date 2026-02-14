@@ -119,9 +119,14 @@ export function isAxiosUnauthorizedError<UnauthorizedError>(error: unknown): err
 }
 
 export function isAxiosExpiredTokenError<ExpiredTokenError>(error: unknown): error is AxiosError<ExpiredTokenError> {
+  if (!isAxiosUnauthorizedError(error)) return false
+  
+  // Check both formats: nested object or direct string
+  const data = error.response?.data as any
   return (
-    isAxiosUnauthorizedError<ErrorResponseApi<{ name: string; message: string }>>(error) &&
-    error.response?.data?.data?.name === 'EXPIRED_TOKEN'
+    data?.data?.name === 'EXPIRED_TOKEN' ||
+    data?.detail === 'Token hết hạn' ||
+    data?.message === 'Token hết hạn'
   )
 }
 

@@ -33,8 +33,10 @@ class HttpAdminPortal {
     // Http request interceptors
     this.instance.interceptors.request.use(
       (config) => {
-        if (this.accessToken && config.headers) {
-          config.headers.authorization = `Bearer ${this.accessToken}`
+        // Always get fresh token from localStorage
+        const accessToken = getAccessTokenFromLS()
+        if (accessToken && config.headers) {
+          config.headers.authorization = `Bearer ${accessToken}`
           return config
         }
         return config

@@ -137,71 +137,155 @@ export default function ManageDuAn() {
         </div>
       </div>
 
-      {/* List */}
-      <div className="space-y-3">
-        {isLoading && <div className="p-4 text-sm text-neutral-500 animate-pulse">Đang tải danh sách dự án...</div>}
-        {!isLoading && items.length === 0 && <div className="p-4 text-sm text-neutral-500 text-center">Không có dự án nào.</div>}
+      {/* Loading & Empty States */}
+      {isLoading && <div className="p-6 text-center text-neutral-500 animate-pulse">Đang tải danh sách dự án...</div>}
+      {!isLoading && items.length === 0 && (
+        <div className="p-8 text-center">
+          <Building2 className="mx-auto mb-2 text-neutral-700" size={48} />
+          <p className="text-neutral-500">Không có dự án nào.</p>
+        </div>
+      )}
 
-        {!isLoading &&
-          items.map((item, index) => (
+      {/* Desktop Table View (lg+) */}
+      {!isLoading && items.length > 0 && (
+        <div className="hidden lg:block overflow-x-auto rounded-lg border border-neutral-800">
+          <table className="w-full text-sm">
+            <thead className="bg-neutral-900/80 border-b border-neutral-800">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium text-neutral-300">Hình ảnh</th>
+                <th className="px-4 py-3 text-left font-medium text-neutral-300">Tiêu đề</th>
+                <th className="px-4 py-3 text-left font-medium text-neutral-300">Mô tả</th>
+                <th className="px-4 py-3 text-right font-medium text-neutral-300">Giá trị</th>
+                <th className="px-4 py-3 text-right font-medium text-neutral-300">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-neutral-800">
+              {items.map((item, index) => (
+                <motion.tr
+                  key={item._id}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.03 }}
+                  className="bg-neutral-900/30 hover:bg-neutral-900/50 transition-colors"
+                >
+                  <td className="px-4 py-3">
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = 'none'
+                        }}
+                        className="h-12 w-12 rounded-md object-cover border border-neutral-700 cursor-pointer hover:scale-110 transition-transform"
+                        onClick={() => setPreviewUrl(item.image || null)}
+                      />
+                    ) : (
+                      <div className="h-12 w-12 rounded-md bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-600">
+                        <Building2 size={16} />
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 font-medium text-white max-w-[200px]">
+                    <div className="line-clamp-2">{item.title}</div>
+                  </td>
+                  <td className="px-4 py-3 text-neutral-400 max-w-[300px]">
+                    <div className="line-clamp-2">{item.description || 'Không có mô tả'}</div>
+                  </td>
+                  <td className="px-4 py-3 text-right text-emerald-400 font-medium whitespace-nowrap">
+                    {item.price ? `${item.price.toLocaleString('vi-VN')}₫` : '—'}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        to={PATH.ADMIN_DU_AN_UPDATE.replace('${item._id}', item._id)}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-red-400 hover:bg-red-500/10 transition-colors"
+                      >
+                        <Edit3 size={14} />
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (confirm('Bạn có chắc muốn xóa dự án này?')) deleteMutation.mutate(item._id)
+                        }}
+                        className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-red-500 hover:bg-red-500/10 transition-colors"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Mobile Card View (<lg) */}
+      {!isLoading && items.length > 0 && (
+        <div className="lg:hidden space-y-3">
+          {items.map((item, index) => (
             <motion.div
               key={item._id}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.03 }}
-              className="group flex flex-col sm:grid sm:grid-cols-12 gap-3 p-3 sm:p-4 bg-neutral-900/30 rounded-lg border border-neutral-800 hover:shadow hover:bg-neutral-900/50 transition"
+              className="relative bg-neutral-900/40 rounded-lg border border-neutral-800 overflow-hidden hover:border-neutral-700 transition-colors"
             >
-              {/* Image + Info */}
-              <div className="flex items-start gap-3 col-span-10 sm:col-span-10">
-                {item.image ? (
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).style.display = 'none'
-                    }}
-                    className="h-14 w-14 sm:h-16 sm:w-16 rounded-md object-cover border border-neutral-700 cursor-pointer"
-                    onClick={() => setPreviewUrl(item.image || null)}
-                  />
-                ) : (
-                  <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-md bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-500">
-                    <Tag size={18} />
+              <div className="p-4">
+                <div className="flex gap-3 mb-3">
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).style.display = 'none'
+                      }}
+                      className="h-20 w-20 sm:h-24 sm:w-24 rounded-md object-cover border border-neutral-700 cursor-pointer shrink-0"
+                      onClick={() => setPreviewUrl(item.image || null)}
+                    />
+                  ) : (
+                    <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-md bg-neutral-800 border border-neutral-700 flex items-center justify-center text-neutral-600 shrink-0">
+                      <Building2 size={24} />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-white text-base mb-1 line-clamp-2">{item.title}</h3>
+                    {item.price && (
+                      <div className="text-emerald-400 font-semibold text-sm mb-1">
+                        {item.price.toLocaleString('vi-VN')}₫
+                      </div>
+                    )}
+                    <p className="text-xs text-neutral-400 line-clamp-2">{item.description || 'Không có mô tả'}</p>
                   </div>
-                )}
-                <div className="flex-1">
-                  <div className="font-medium text-white text-sm sm:text-base">{item.title}</div>
-                  <div className="text-xs text-neutral-400 line-clamp-2">{item.description || 'Không có mô tả'}</div>
                 </div>
-              </div>
 
-              {/* Actions */}
-              <div className="flex sm:flex-col items-center sm:items-end justify-end gap-2 sm:gap-3 mt-2 sm:mt-0 col-span-2">
-                <Link
-                  to={PATH.ADMIN_DU_AN_UPDATE.replace('${item._id}', item._id)}
-                  className="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-300 transition-colors"
-                  title="Sửa"
-                >
-                  <Edit3 size={14} />
-                  <span className="hidden sm:inline">Sửa</span>
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (confirm('Bạn có chắc muốn xóa dự án này?')) deleteMutation.mutate(item._id)
-                  }}
-                  className="inline-flex items-center gap-1 text-sm text-red-500 hover:text-red-300 transition-colors"
-                  title="Xóa"
-                >
-                  <Trash2 size={14} />
-                  <span className="hidden sm:inline">Xóa</span>
-                </button>
+                <div className="flex gap-2 pt-3 border-t border-neutral-800">
+                  <Link
+                    to={PATH.ADMIN_DU_AN_UPDATE.replace('${item._id}', item._id)}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-colors"
+                  >
+                    <Edit3 size={16} />
+                    Chỉnh sửa
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm('Bạn có chắc muốn xóa dự án này?')) deleteMutation.mutate(item._id)
+                    }}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium text-red-500 bg-red-500/10 hover:bg-red-500/20 transition-colors"
+                  >
+                    <Trash2 size={16} />
+                    Xóa
+                  </button>
+                </div>
               </div>
             </motion.div>
           ))}
-      </div>
+        </div>
+      )}
 
       {totalPage > 1 && (
-        <div className="mt-6">
+        <div className="mt-4 sm:mt-6">
           <Pagination page={page} totalPage={totalPage} />
         </div>
       )}

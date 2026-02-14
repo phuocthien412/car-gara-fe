@@ -1,0 +1,8 @@
+# ============================================
+# API CONFIGURATION
+# ============================================
+# Backend API endpoint
+VITE_API_ENDPOINT=http://localhost:9000
+
+# API request timeout in milliseconds (30 seconds)
+VITE_ENDPOINT_TIMEOUT=30000
