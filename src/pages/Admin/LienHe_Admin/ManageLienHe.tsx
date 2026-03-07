@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import lienheApi from '@/apis/lienhe'
 import type { CreateLienHeReq, UpdateLienHeReq, lienhe } from '@/types/lienhe'
+import { PageLayout } from '@/components/Admin'
 
 type FormValues = CreateLienHeReq & { _id?: string }
 
@@ -85,7 +86,7 @@ export default function ManageLienHe() {
   const saving = createMutation.isPending || updateMutation.isPending
 
   return (
-    <div className="min-h-[60vh] rounded-xl bg-neutral-950 text-neutral-100 p-4 sm:p-6 shadow-inner border border-neutral-800">
+    <PageLayout>
       <div className="mb-4 text-2xl font-semibold">Cấu hình Liên hệ</div>
       {isLoading && <div className="text-neutral-400 text-sm">Đang tải...</div>}
 
@@ -238,6 +239,6 @@ export default function ManageLienHe() {
           </div>
         </div>
       )}
-    </div>
+    </PageLayout>
   )
 }

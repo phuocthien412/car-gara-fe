@@ -1,0 +1,10 @@
+// Centralized export for all admin components
+export { default as PageLayout } from './PageLayout'
+export { default as PageHeader } from './PageHeader'
+export { default as SearchBar } from './SearchBar'
+export { default as ActionButton } from './ActionButton'
+export { default as StatusBadge } from './StatusBadge'
+export { default as CardWrapper } from './CardWrapper'
+export { default as GridContainer } from './GridContainer'
+export { default as ImagePreviewModal } from './ImagePreviewModal'
+export { default as DeleteConfirmModal } from './DeleteConfirmModal'

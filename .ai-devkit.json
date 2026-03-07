@@ -1,0 +1,27 @@
+{
+  "version": "0.11.0",
+  "environments": [
+    "cursor",
+    "claude",
+    "github",
+    "gemini",
+    "codex",
+    "windsurf",
+    "kilocode",
+    "amp",
+    "opencode",
+    "roo",
+    "antigravity"
+  ],
+  "initializedPhases": [
+    "requirements",
+    "design",
+    "planning",
+    "implementation",
+    "testing",
+    "deployment",
+    "monitoring"
+  ],
+  "createdAt": "2026-02-14T13:22:42.726Z",
+  "updatedAt": "2026-02-14T13:22:42.890Z"
+}
